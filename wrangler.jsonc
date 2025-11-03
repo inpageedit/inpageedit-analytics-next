@@ -1,0 +1,20 @@
+{
+  "name": "inpageedit-analytics-next",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "D1",
+      "database_name": "inpageedit-analytics-next",
+      "database_id": "25bed134-25a9-493c-888e-a47198badbff",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "33fc8a93cf2e42c883fad740207e1007"
+    }
+  ]
+}
