@@ -1,4 +1,4 @@
-import { and, count, eq, gte, lte } from 'drizzle-orm'
+import { and, count, countDistinct, eq, gte, lte } from 'drizzle-orm'
 import { eventLogTable } from '~~/db/schema.js'
 
 export default eventHandler(async (event) => {
@@ -25,26 +25,35 @@ export default eventHandler(async (event) => {
     end ? lte(eventLogTable.createdAt, end) : undefined
   )
 
-  const totalRows = await drizzle
+  // 总使用量：事件总数
+  const totalUsageRows = await drizzle
     .select({ total: count() })
     .from(eventLogTable)
     .where(whereClause)
     .all()
 
-  const total = totalRows[0]?.total ?? 0
+  const totalUsage = totalUsageRows[0]?.total ?? 0
 
-  const features = await drizzle
-    .select({ feature: eventLogTable.feature, count: count() })
+  // 总用户量：去重 userId 数
+  const totalUsersRows = await drizzle
+    .select({ total: countDistinct(eventLogTable.userId) })
     .from(eventLogTable)
     .where(whereClause)
-    .groupBy(eventLogTable.feature)
     .all()
 
+  const totalUsers = totalUsersRows[0]?.total ?? 0
+
+  // 总站点数：去重 siteId 数
+  const totalSitesRows = await drizzle
+    .select({ total: countDistinct(eventLogTable.siteId) })
+    .from(eventLogTable)
+    .where(whereClause)
+    .all()
+
+  const totalSites = totalSitesRows[0]?.total ?? 0
+
   return Response.json({
-    data: {
-      total,
-      features: Object.fromEntries(features.map((f) => [f.feature, f.count])),
-    },
+    data: { total: totalUsage, users: totalUsers, sites: totalSites },
     filters: {
       siteId: Number.isFinite(siteId) && siteId ? siteId : undefined,
       userId: Number.isFinite(userId) && userId ? userId : undefined,
