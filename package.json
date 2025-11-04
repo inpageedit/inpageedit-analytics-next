@@ -10,9 +10,10 @@
     "postinstall": "nuxt prepare",
     "drizzle:generate": "drizzle-kit generate",
     "drizzle:migrate": "drizzle-kit migrate",
-    "drizzle:push-local": "wrangler d1 migrations apply D1 --local",
+    "drizzle:push": "wrangler d1 migrations apply D1 --local",
     "drizzle:push-prod": "drizzle-kit push",
-    "drizzle:studio": "drizzle-kit studio"
+    "drizzle:studio": "cross-env DRIZZLE_STUDIO_MODE=local drizzle-kit studio",
+    "drizzle:studio-prod": "cross-env DRIZZLE_STUDIO_MODE=prod drizzle-kit studio"
   },
   "dependencies": {
     "@nuxt/content": "3.8.0",
@@ -31,10 +32,12 @@
     "@cloudflare/vite-plugin": "^1.13.18",
     "@cloudflare/workers-types": "^4.20251014.0",
     "@types/node": "^24.10.0",
+    "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "drizzle-kit": "^0.31.6",
     "sass-embedded": "^1.93.3",
     "tailwindcss": "^4.1.16",
+    "tsx": "^4.20.6",
     "wrangler": "^4.45.3"
   }
 }
