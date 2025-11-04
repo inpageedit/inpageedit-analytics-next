@@ -66,9 +66,6 @@ importers:
       tailwindcss:
         specifier: ^4.1.16
         version: 4.1.16
-      tsx:
-        specifier: ^4.20.6
-        version: 4.20.6
       wrangler:
         specifier: ^4.45.3
         version: 4.45.3(@cloudflare/workers-types@4.20251014.0)
@@ -10798,6 +10795,7 @@ snapshots:
       get-tsconfig: 4.13.0
     optionalDependencies:
       fsevents: 2.3.3
+    optional: true
 
   tunnel-agent@0.6.0:
     dependencies:
