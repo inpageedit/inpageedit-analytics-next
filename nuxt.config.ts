@@ -2,14 +2,14 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@nuxt/content', '@nuxt/fonts'],
+  modules: ['@nuxt/ui', '@nuxt/fonts'],
   css: ['~/assets/styles/main.css'],
-  content: {
-    database: {
-      type: 'd1',
-      bindingName: 'D1',
-    },
-  },
+  // content: {
+  //   database: {
+  //     type: 'd1',
+  //     bindingName: 'D1',
+  //   },
+  // },
   nitro: {
     preset: 'cloudflare-module',
     cloudflare: {

@@ -1,8 +1,8 @@
 {
-  "name": "inpageedit-analytics-next",
-  "main": "src/index.ts",
   "compatibility_date": "2025-11-01",
-  "compatibility_flags": ["nodejs_compat"],
+  "name": "inpageedit-analytics",
+  "main": ".output/server/index.mjs",
+  "compatibility_flags": ["nodejs_compat", "no_nodejs_compat_v2"],
   "d1_databases": [
     {
       "binding": "D1",
@@ -16,5 +16,9 @@
       "binding": "KV",
       "id": "33fc8a93cf2e42c883fad740207e1007"
     }
-  ]
+  ],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".output/public"
+  }
 }
