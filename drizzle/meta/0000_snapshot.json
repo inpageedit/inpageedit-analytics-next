@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "0115092c-fc4b-4d43-9422-e5ff2ca86eb3",
+  "id": "60090f06-6258-408c-aa51-6f675a8cf8ea",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "event_log": {
@@ -28,8 +28,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "page": {
-          "name": "page",
+        "page_name": {
+          "name": "page_name",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -49,8 +49,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "event_at": {
-          "name": "event_at",
+        "created_at": {
+          "name": "created_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -58,7 +58,15 @@
           "default": "(STRFTIME('%s', 'now'))"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "ix_event_time": {
+          "name": "ix_event_time",
+          "columns": [
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "event_log_site_id_wiki_site_id_fk": {
           "name": "event_log_site_id_wiki_site_id_fk",
@@ -87,104 +95,6 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "usage_rollup": {
-      "name": "usage_rollup",
-      "columns": {
-        "site_id": {
-          "name": "site_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "feature": {
-          "name": "feature",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        },
-        "period_kind": {
-          "name": "period_kind",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "period_start": {
-          "name": "period_start",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "count": {
-          "name": "count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        }
-      },
-      "indexes": {
-        "ux_rollup_key": {
-          "name": "ux_rollup_key",
-          "columns": [
-            "period_kind",
-            "period_start",
-            "site_id",
-            "user_id",
-            "feature"
-          ],
-          "isUnique": true
-        },
-        "ix_rollup_period_bucket": {
-          "name": "ix_rollup_period_bucket",
-          "columns": [
-            "period_kind",
-            "period_start"
-          ],
-          "isUnique": false
-        },
-        "ix_rollup_site": {
-          "name": "ix_rollup_site",
-          "columns": [
-            "site_id"
-          ],
-          "isUnique": false
-        },
-        "ix_rollup_user": {
-          "name": "ix_rollup_user",
-          "columns": [
-            "user_id"
-          ],
-          "isUnique": false
-        },
-        "ix_rollup_feature": {
-          "name": "ix_rollup_feature",
-          "columns": [
-            "feature"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -220,8 +130,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "migrated_to_site_id": {
-          "name": "migrated_to_site_id",
+        "migrated_to_id": {
+          "name": "migrated_to_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
@@ -229,14 +139,6 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(STRFTIME('%s', 'now'))"
-        },
-        "updated_at": {
-          "name": "updated_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -255,18 +157,18 @@
         "ix_site_migrated_to": {
           "name": "ix_site_migrated_to",
           "columns": [
-            "migrated_to_site_id"
+            "migrated_to_id"
           ],
           "isUnique": false
         }
       },
       "foreignKeys": {
-        "wiki_site_migrated_to_site_id_wiki_site_id_fk": {
-          "name": "wiki_site_migrated_to_site_id_wiki_site_id_fk",
+        "wiki_site_migrated_to_id_wiki_site_id_fk": {
+          "name": "wiki_site_migrated_to_id_wiki_site_id_fk",
           "tableFrom": "wiki_site",
           "tableTo": "wiki_site",
           "columnsFrom": [
-            "migrated_to_site_id"
+            "migrated_to_id"
           ],
           "columnsTo": [
             "id"
@@ -296,8 +198,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "wiki_user_id": {
-          "name": "wiki_user_id",
+        "mw_user_id": {
+          "name": "mw_user_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -317,14 +219,6 @@
           "notNull": true,
           "autoincrement": false,
           "default": "(STRFTIME('%s', 'now'))"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(STRFTIME('%s', 'now'))"
         }
       },
       "indexes": {
@@ -332,9 +226,17 @@
           "name": "ux_site_user",
           "columns": [
             "site_id",
-            "wiki_user_id"
+            "mw_user_id"
           ],
           "isUnique": true
+        },
+        "ix_user_site_name": {
+          "name": "ix_user_site_name",
+          "columns": [
+            "site_id",
+            "name"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {

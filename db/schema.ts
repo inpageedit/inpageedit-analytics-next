@@ -8,10 +8,12 @@ import {
 } from 'drizzle-orm/sqlite-core'
 
 const CURRENT_TIMESTAMP_INTEGER = sql`(STRFTIME('%s', 'now'))`
-
+const COLUMN_DEFAULT_NOW = integer()
+  .notNull()
+  .default(CURRENT_TIMESTAMP_INTEGER)
 const timestamp = {
-  createdAt: integer().notNull().default(CURRENT_TIMESTAMP_INTEGER),
-  updatedAt: integer().notNull().default(CURRENT_TIMESTAMP_INTEGER),
+  createdAt: COLUMN_DEFAULT_NOW,
+  updatedAt: COLUMN_DEFAULT_NOW,
 }
 
 export const wikiSiteTable = table(
@@ -21,14 +23,14 @@ export const wikiSiteTable = table(
     name: text().notNull(),
     apiUrl: text().notNull(),
     articlePath: text().notNull(),
-    migratedToSiteId: integer().references((): any => wikiSiteTable.id, {
+    migratedToId: integer().references((): any => wikiSiteTable.id, {
       onDelete: 'set null',
     }),
     ...timestamp,
   },
   (t) => [
     uniqueIndex('ux_site_api_url').on(t.apiUrl),
-    index('ix_site_migrated_to').on(t.migratedToSiteId),
+    index('ix_site_migrated_to').on(t.migratedToId),
   ]
 )
 
@@ -37,55 +39,32 @@ export const wikiUserTable = table(
   {
     id: integer().primaryKey({ autoIncrement: true }),
     name: text().notNull(),
-    wikiUserId: integer().notNull(),
+    mwUserId: integer().notNull(),
     siteId: integer()
       .notNull()
       .references(() => wikiSiteTable.id),
     ...timestamp,
   },
-  (t) => [uniqueIndex('ux_site_user').on(t.siteId, t.wikiUserId)]
+  (t) => [
+    uniqueIndex('ux_site_user').on(t.siteId, t.mwUserId),
+    index('ix_user_site_name').on(t.siteId, t.name),
+  ]
 )
 
-export const eventLogTable = table('event_log', {
-  id: integer().primaryKey({ autoIncrement: true }),
-  siteId: integer()
-    .notNull()
-    .references(() => wikiSiteTable.id, { onDelete: 'restrict' }),
-  userId: integer()
-    .notNull()
-    .references(() => wikiUserTable.id, { onDelete: 'restrict' }),
-  page: text(),
-  feature: text().notNull(),
-  subtype: text(),
-  eventAt: integer().notNull().default(CURRENT_TIMESTAMP_INTEGER),
-})
-
-export const usageRollupTable = table(
-  'usage_rollup',
+export const eventLogTable = table(
+  'event_log',
   {
-    // 维度：哨兵值表示“汇总”
-    siteId: integer().notNull().default(0), // 0 = all sites
-    userId: integer().notNull().default(0), // 0 = all users
-    feature: text().notNull().default(''), // '' = all features
-
-    // 时间维度
-    periodKind: text().notNull(), // 'all' | 'year' | 'month' | 'day'
-    periodStart: integer().notNull().default(0), // unix seconds of bucket start; 0 for 'all'
-
-    // 指标
-    count: integer().notNull().default(0),
+    id: integer().primaryKey({ autoIncrement: true }),
+    siteId: integer()
+      .notNull()
+      .references(() => wikiSiteTable.id, { onDelete: 'restrict' }),
+    userId: integer()
+      .notNull()
+      .references(() => wikiUserTable.id, { onDelete: 'restrict' }),
+    pageName: text(),
+    feature: text().notNull(),
+    subtype: text(),
+    createdAt: COLUMN_DEFAULT_NOW,
   },
-  (t) => [
-    uniqueIndex('ux_rollup_key').on(
-      t.periodKind,
-      t.periodStart,
-      t.siteId,
-      t.userId,
-      t.feature
-    ),
-    index('ix_rollup_period_bucket').on(t.periodKind, t.periodStart),
-    index('ix_rollup_site').on(t.siteId),
-    index('ix_rollup_user').on(t.userId),
-    index('ix_rollup_feature').on(t.feature),
-  ]
+  (e) => [index('ix_event_time').on(e.createdAt)]
 )

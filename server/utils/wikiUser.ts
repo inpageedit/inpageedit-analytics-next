@@ -5,15 +5,15 @@ import { and, eq, sql } from 'drizzle-orm'
 export const getWikiUserFromDB = async (
   event: H3Event,
   siteId: number,
-  userId: number,
+  mwUserId: number,
   userName: string
 ) => {
   const drizzle = useDrizzle(event)
   const [user] = await drizzle
     .insert(wikiUserTable)
-    .values({ name: userName, siteId, wikiUserId: userId })
+    .values({ name: userName, siteId, mwUserId })
     .onConflictDoUpdate({
-      target: [wikiUserTable.siteId, wikiUserTable.wikiUserId],
+      target: [wikiUserTable.siteId, wikiUserTable.mwUserId],
       set: { name: userName, updatedAt: sql`(STRFTIME('%s', 'now'))` },
       where: sql`${wikiUserTable.name} IS NOT ${userName}`,
     })
@@ -27,7 +27,7 @@ export const getWikiUserFromDB = async (
     .where(
       and(
         eq(wikiUserTable.siteId, siteId),
-        eq(wikiUserTable.wikiUserId, userId)
+        eq(wikiUserTable.mwUserId, mwUserId)
       )
     )
     .limit(1)
