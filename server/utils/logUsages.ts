@@ -56,18 +56,31 @@ export async function logUsages(
   const drizzle = useDrizzle(event)
 
   // 1️⃣ 批量插入 event_log
-  const events = usages.map((u) => ({
-    siteId,
-    userId,
-    feature: u.feature,
-    subtype: u.subtype,
-    page: u.page,
-    eventAt: Math.floor(u.ts / 1000), // 转为 UTC 秒
-  }))
-  const result = await drizzle.insert(eventLogTable).values(events).run()
+  const events = usages
+    .map((u) => ({
+      siteId,
+      userId,
+      feature: u.feature,
+      subtype: u.subtype,
+      page: u.page,
+      eventAt: Math.floor(u.ts / 1000), // 转为 UTC 秒
+    }))
+    .sort((a, b) => a.eventAt - b.eventAt) // 按时间戳排序
+  const eventsResult = await drizzle.insert(eventLogTable).values(events).run()
 
   // 2️⃣ 构造 rollup UPSERT - 使用 SQL 语句
   const batchOps: D1PreparedStatement[] = []
+  const rollupMap = new Map<
+    string,
+    {
+      periodKind: string
+      periodStart: number
+      siteId: number
+      userId: number
+      feature: string
+      count: number
+    }
+  >()
 
   for (const ev of events) {
     const buckets = calcUtcBuckets(ev.eventAt)
@@ -75,9 +88,13 @@ export async function logUsages(
 
     for (const [periodKind, periodStart] of Object.entries(buckets)) {
       for (const [s, u, f] of combos) {
-        const insertQuery = drizzle
-          .insert(usageRollupTable)
-          .values({
+        const key = JSON.stringify([periodKind, periodStart, s, u, f])
+        const current = rollupMap.get(key)
+
+        if (current) {
+          current.count += 1
+        } else {
+          rollupMap.set(key, {
             periodKind,
             periodStart,
             siteId: s,
@@ -85,28 +102,36 @@ export async function logUsages(
             feature: f,
             count: 1,
           })
-          .onConflictDoUpdate({
-            target: [
-              usageRollupTable.periodKind,
-              usageRollupTable.periodStart,
-              usageRollupTable.siteId,
-              usageRollupTable.userId,
-              usageRollupTable.feature,
-            ],
-            set: {
-              count: sql`${usageRollupTable.count} + 1`,
-            },
-          })
-
-        const compiled = insertQuery.toSQL()
-        const stmt = D1.prepare(compiled.sql).bind(...(compiled.params ?? []))
-        batchOps.push(stmt)
+        }
       }
     }
   }
 
-  // 3️⃣ 使用 D1 的 batch API 批量执行
-  await D1.batch(batchOps)
+  for (const row of rollupMap.values()) {
+    const insertQuery = drizzle
+      .insert(usageRollupTable)
+      .values(row)
+      .onConflictDoUpdate({
+        target: [
+          usageRollupTable.periodKind,
+          usageRollupTable.periodStart,
+          usageRollupTable.siteId,
+          usageRollupTable.userId,
+          usageRollupTable.feature,
+        ],
+        set: {
+          count: sql`${usageRollupTable.count} + ${row.count}`,
+        },
+      })
 
-  return result
+    const compiled = insertQuery.toSQL()
+    const stmt = D1.prepare(compiled.sql).bind(...(compiled.params ?? []))
+    batchOps.push(stmt)
+  }
+
+  // 3️⃣ 使用 D1 的 batch API 批量执行
+  const rollupResult = await D1.batch(batchOps)
+
+  console.info(eventsResult, rollupResult)
+  return eventsResult
 }

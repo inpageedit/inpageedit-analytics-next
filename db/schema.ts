@@ -5,7 +5,6 @@ import {
   index,
   uniqueIndex,
   integer,
-  check,
 } from 'drizzle-orm/sqlite-core'
 
 const CURRENT_TIMESTAMP_INTEGER = sql`(STRFTIME('%s', 'now'))`

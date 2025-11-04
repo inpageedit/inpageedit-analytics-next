@@ -2,37 +2,42 @@ import { ZodError } from 'zod'
 import { IPEBeaconPayload } from '#shared/types/index.js'
 
 export default eventHandler(async (event) => {
-  const body = await readBody(event)
-  let payload: IPEBeaconPayload
-  try {
-    payload = beaconSchema.parse(body)
-  } catch (e) {
-    if (e instanceof ZodError) {
-      return Response.json(
-        {
-          error: true,
-          code: 'InvalidPayload',
-          statusMessage: 'Zod validation error',
-          issues: e.issues,
-        },
-        { status: 400 }
-      )
-    }
+  const body = await readValidatedBody(event, beaconSchema.safeParse)
+
+  if (body.error || !body.data) {
     return Response.json(
       {
         error: true,
         code: 'InvalidPayload',
         statusMessage: 'Invalid payload',
-        cause: e,
+        cause: body.error ? body.error.issues : undefined,
       },
       { status: 400 }
     )
   }
 
+  const payload = body.data!
+
   const siteApi = payload.siteApi
   const userName = payload.userName
   const userId = payload.userId
   const usages = payload.usages
+
+  // All usages must be within the last hour
+  const mustBefore = Date.now()
+  const mustAfter = mustBefore - 1000 * 60 * 60
+  for (const usage of usages) {
+    if (usage.ts > mustBefore || usage.ts < mustAfter) {
+      return Response.json(
+        {
+          error: true,
+          code: 'InvalidTimestamp',
+          statusMessage: 'Timestamp is invalid',
+        },
+        { status: 400 }
+      )
+    }
+  }
 
   if (!siteApi || !userName || !userId) {
     return Response.json(
@@ -48,11 +53,14 @@ export default eventHandler(async (event) => {
   if (!usages.length) {
     return Response.json(
       {
-        error: true,
-        code: 'NoUsagesProvided',
-        statusMessage: 'No usages provided',
+        success: true,
+        message: 'No usages provided',
+        meta: {
+          changes: 0,
+          eventId: null,
+        },
       },
-      { status: 400 }
+      { status: 200 }
     )
   }
 
@@ -60,5 +68,12 @@ export default eventHandler(async (event) => {
   const wikiUser = await getWikiUserFromDB(event, wikiSite.id, userId, userName)
 
   const result = await logUsages(event, wikiSite.id, wikiUser.id, usages)
-  return Response.json(result)
+  return Response.json({
+    success: true,
+    message: 'Usages logged successfully',
+    meta: {
+      changes: result.length,
+      eventId: result.meta?.last_row_id ?? null,
+    },
+  })
 })
