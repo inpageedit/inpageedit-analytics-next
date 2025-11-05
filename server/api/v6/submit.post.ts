@@ -5,7 +5,7 @@ import {
   normalizeWikiTitle,
 } from '~~/shared/utils/wikiTitle'
 
-const WIKI_API_REGEXP = /^https?:\/\/[^\/]+\/api\.php$/
+const WIKI_API_REGEXP = /^https?:\/\/[^\/]+\/.*api\.php$/
 
 const checkWikiApi = (api: string, referer: string | null) => {
   if (!api.match(WIKI_API_REGEXP)) {
