@@ -1,10 +1,10 @@
 <template>
   <div class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
     <header
-      class="sticky top-0 z-50 backdrop-blur-lg bg-white/80 dark:bg-gray-950/80 border-b border-gray-200 dark:border-gray-800"
+      class="fixed top-0 left-0 right-0 w-full z-50 backdrop-blur-lg bg-white/80 dark:bg-gray-950/80 border-b border-gray-200 dark:border-gray-800"
     >
       <UContainer class="py-4">
-        <nav class="flex items-center justify-between">
+        <nav class="flex items-center justify-between w-full">
           <div class="flex items-center gap-3">
             <div class="flex items-center gap-2">
               <UIcon
@@ -43,14 +43,14 @@
       </UContainer>
     </header>
 
-    <main class="flex-1">
+    <main class="flex-1 pt-16 pb-8">
       <UContainer class="py-8">
         <slot />
       </UContainer>
     </main>
 
     <footer
-      class="mt-auto border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950"
+      class="mt-auto border-t border-gray-100 dark:border-gray-800/50 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm"
     >
       <UContainer class="py-8">
         <div

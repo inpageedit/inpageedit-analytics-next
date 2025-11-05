@@ -161,6 +161,9 @@
         </div>
       </div>
     </UCard>
+
+    <!-- 最近活动 -->
+    <RecentActivity :user-id="userId" :limit="20" :show-user="false" />
   </div>
 </template>
 

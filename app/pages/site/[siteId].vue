@@ -125,6 +125,9 @@
         </div>
       </div>
     </UCard>
+
+    <!-- 最近活动 -->
+    <RecentActivity :site-id="siteId" :limit="20" :show-site="false" />
   </div>
 </template>
 

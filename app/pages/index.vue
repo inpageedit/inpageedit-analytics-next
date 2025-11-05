@@ -88,49 +88,36 @@
       </UCard>
     </div>
 
-    <!-- 最近活动 -->
+    <!-- 使用量趋势图 -->
     <UCard>
       <template #header>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <UIcon name="i-heroicons-clock" class="w-5 h-5 text-gray-500" />
-            <span class="font-semibold text-gray-900 dark:text-white"
-              >最近活动</span
-            >
-          </div>
-          <UBadge color="neutral" variant="subtle" size="sm"> 实时更新 </UBadge>
+        <div class="flex items-center gap-2">
+          <UIcon name="i-heroicons-chart-line" class="w-5 h-5 text-gray-500" />
+          <span class="font-semibold text-gray-900 dark:text-white"
+            >使用量趋势</span
+          >
         </div>
       </template>
 
-      <div v-if="loadingRecent" class="p-6">
+      <div v-if="loadingDaily" class="p-6">
         <USkeleton class="h-64" />
       </div>
-      <template v-else>
-        <div v-if="recentActivity?.data?.length" class="overflow-hidden">
-          <UTable
-            :data="recentActivity.data"
-            :columns="recentActivityColumns"
-          />
-        </div>
-        <div v-else class="p-12 text-center">
-          <UIcon
-            name="i-heroicons-inbox"
-            class="w-16 h-16 mx-auto text-gray-400 mb-3"
-          />
-          <p class="text-gray-500 dark:text-gray-400">暂无活动数据</p>
-        </div>
-      </template>
+      <div v-else class="p-4">
+        <div ref="chartContainer" style="width: 100%; height: 350px"></div>
+      </div>
     </UCard>
+
+    <!-- 最近活动 -->
+    <RecentActivity :limit="10" />
   </div>
 </template>
 
 <script setup lang="ts">
 import type {
   AnalyticsTotalUsageResponse,
-  AnalyticsRecentActivityResponse,
+  AnalyticsDailyUsageResponse,
 } from '#shared/types/AnalyticsResponse'
-import type { TableColumn } from '@nuxt/ui'
-import { RouterLink } from 'vue-router'
+import * as echarts from 'echarts'
 
 useHead({
   title: '',
@@ -138,64 +125,155 @@ useHead({
 
 const { data: totalUsage, pending: loadingUsage } =
   useFetch<AnalyticsTotalUsageResponse>('/api/v6/usage/total')
-const { data: recentActivity, pending: loadingRecent } =
-  useFetch<AnalyticsRecentActivityResponse>('/api/v6/recent')
+const { data: dailyUsage, pending: loadingDaily } =
+  useFetch<AnalyticsDailyUsageResponse>('/api/v6/usage/daily')
 
-const recentActivityColumns: TableColumn<AnalyticsRecentActivityItem>[] = [
-  {
-    header: '用户',
-    cell({ row }) {
-      return h(
-        RouterLink,
-        { to: `/user/${row.original.user.id}` },
-        () => `${row.original.user.name} (#${row.original.user.mwUserId})`
-      )
-    },
-  },
-  {
-    header: '站点',
-    cell({ row }) {
-      return h(
-        RouterLink,
-        { to: `/site/${row.original.site.id}` },
-        () =>
-          `${row.original.site.name} (${
-            new URL(row.original.site.apiUrl).host
-          })`
-      )
-    },
-  },
-  {
-    header: '功能',
-    cell({ row }) {
-      return `${row.original.feature}${
-        row.original.subtype ? `/${row.original.subtype}` : ''
-      }`
-    },
-  },
-  {
-    header: '版本',
-    cell({ row }) {
-      return row.original.coreVersion ?? '-'
-    },
-  },
-  {
-    header: '时间',
-    cell({ row }) {
-      return formatTs(row.original.createdAt)
-    },
-  },
-]
-
-const formatDate = new Intl.DateTimeFormat(/** auto */ undefined, {
-  dateStyle: 'medium',
-  timeStyle: 'short',
-}).format
-const formatTs = (ts: number) => formatDate(new Date(ts * 1000))
+const chartContainer = ref<HTMLDivElement | null>(null)
+let chartInstance: echarts.ECharts | null = null
 
 const formatNumber = (num: number) => {
   return new Intl.NumberFormat('zh-CN').format(num)
 }
+
+// 初始化 ECharts
+onMounted(() => {
+  watch(
+    [chartContainer, dailyUsage],
+    () => {
+      if (!chartContainer.value || !dailyUsage.value?.data) return
+
+      // 销毁之前的图表实例
+      if (chartInstance) {
+        chartInstance.dispose()
+      }
+
+      // 初始化 ECharts 实例
+      chartInstance = echarts.init(chartContainer.value)
+
+      const dates = dailyUsage.value.data.map((item) => item.date)
+      const counts = dailyUsage.value.data.map((item) => item.count)
+
+      // 配置图表选项
+      const option: echarts.EChartsOption = {
+        tooltip: {
+          trigger: 'axis',
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          borderWidth: 0,
+          textStyle: {
+            color: '#fff',
+          },
+          formatter: (params: any) => {
+            const param = params[0]
+            return `${param.axisValue}<br/>使用次数: ${formatNumber(
+              param.value
+            )}`
+          },
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          top: '3%',
+          containLabel: true,
+        },
+        xAxis: {
+          type: 'category',
+          data: dates,
+          boundaryGap: false,
+          axisLine: {
+            lineStyle: {
+              color: '#e5e7eb',
+            },
+          },
+          axisLabel: {
+            color: '#6b7280',
+            rotate: 45,
+            fontSize: 11,
+          },
+          splitLine: {
+            show: false,
+          },
+        },
+        yAxis: {
+          type: 'value',
+          axisLine: {
+            show: false,
+          },
+          axisLabel: {
+            color: '#6b7280',
+            formatter: (value: number) => formatNumber(value),
+          },
+          splitLine: {
+            lineStyle: {
+              color: '#f3f4f6',
+              type: 'dashed',
+            },
+          },
+        },
+        series: [
+          {
+            name: '使用次数',
+            type: 'line',
+            data: counts,
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 6,
+            lineStyle: {
+              color: '#3b82f6',
+              width: 2,
+            },
+            itemStyle: {
+              color: '#3b82f6',
+              borderColor: '#fff',
+              borderWidth: 2,
+            },
+            areaStyle: {
+              color: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 0,
+                y2: 1,
+                colorStops: [
+                  { offset: 0, color: 'rgba(59, 130, 246, 0.3)' },
+                  { offset: 1, color: 'rgba(59, 130, 246, 0.05)' },
+                ],
+              },
+            },
+            emphasis: {
+              focus: 'series',
+              itemStyle: {
+                shadowBlur: 10,
+                shadowColor: 'rgba(59, 130, 246, 0.5)',
+              },
+            },
+          },
+        ],
+      }
+
+      chartInstance.setOption(option)
+
+      // 响应式调整
+      const resizeObserver = new ResizeObserver(() => {
+        chartInstance?.resize()
+      })
+      resizeObserver.observe(chartContainer.value)
+
+      // 清理观察器
+      onUnmounted(() => {
+        resizeObserver.disconnect()
+      })
+    },
+    { immediate: true }
+  )
+})
+
+// 清理图表实例
+onUnmounted(() => {
+  if (chartInstance) {
+    chartInstance.dispose()
+  }
+})
 </script>
 
 <style scoped lang="scss"></style>
