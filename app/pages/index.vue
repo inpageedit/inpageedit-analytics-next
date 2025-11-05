@@ -1,64 +1,124 @@
 <template>
-  <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-semibold">仪表盘</h1>
-        <p class="text-gray-500">InPageEdit NEXT 使用统计</p>
+  <div class="space-y-8">
+    <!-- 页面标题 -->
+    <div class="space-y-2">
+      <div class="flex items-center gap-3">
+        <UIcon
+          name="i-heroicons-chart-bar-square"
+          class="w-8 h-8 text-primary"
+        />
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">仪表盘</h1>
       </div>
-      <!-- <UButton color="primary">开始</UButton> -->
+      <p class="text-gray-600 dark:text-gray-400">
+        InPageEdit NEXT 全球使用统计数据
+      </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- 统计卡片 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <UCard>
-        <template #header>总使用量</template>
-        <div v-if="loadingUsage">
-          <USkeleton class="h-24" />
-        </div>
-        <div v-else class="h-24 flex items-center justify-center">
-          <div class="text-4xl font-bold">
-            {{ totalUsage?.data?.total ?? 0 }}
+        <template #header>
+          <div class="flex items-center gap-2">
+            <UIcon
+              name="i-heroicons-cursor-arrow-ripple"
+              class="w-5 h-5 text-blue-500"
+            />
+            <span class="font-semibold text-gray-700 dark:text-gray-300"
+              >总使用量</span
+            >
           </div>
+        </template>
+        <div v-if="loadingUsage" class="h-20">
+          <USkeleton class="h-full" />
+        </div>
+        <div v-else class="space-y-2">
+          <div class="text-4xl font-bold text-gray-900 dark:text-white">
+            {{ formatNumber(totalUsage?.data?.total ?? 0) }}
+          </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400">累计编辑次数</p>
         </div>
       </UCard>
+
       <UCard>
-        <template #header>总用户量</template>
-        <div v-if="loadingUsage">
-          <USkeleton class="h-24" />
-        </div>
-        <div v-else class="h-24 flex items-center justify-center">
-          <div class="text-4xl font-bold">
-            {{ totalUsage?.data?.users ?? 0 }}
+        <template #header>
+          <div class="flex items-center gap-2">
+            <UIcon
+              name="i-heroicons-user-group"
+              class="w-5 h-5 text-green-500"
+            />
+            <span class="font-semibold text-gray-700 dark:text-gray-300"
+              >总用户量</span
+            >
           </div>
+        </template>
+        <div v-if="loadingUsage" class="h-20">
+          <USkeleton class="h-full" />
+        </div>
+        <div v-else class="space-y-2">
+          <div class="text-4xl font-bold text-gray-900 dark:text-white">
+            {{ formatNumber(totalUsage?.data?.users ?? 0) }}
+          </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400">活跃编辑者</p>
         </div>
       </UCard>
+
       <UCard>
-        <template #header>总站点数</template>
-        <div v-if="loadingUsage">
-          <USkeleton class="h-24" />
-        </div>
-        <div v-else class="h-24 flex items-center justify-center">
-          <div class="text-4xl font-bold">
-            {{ totalUsage?.data?.sites ?? 0 }}
+        <template #header>
+          <div class="flex items-center gap-2">
+            <UIcon
+              name="i-heroicons-globe-alt"
+              class="w-5 h-5 text-purple-500"
+            />
+            <span class="font-semibold text-gray-700 dark:text-gray-300"
+              >总站点数</span
+            >
           </div>
+        </template>
+        <div v-if="loadingUsage" class="h-20">
+          <USkeleton class="h-full" />
+        </div>
+        <div v-else class="space-y-2">
+          <div class="text-4xl font-bold text-gray-900 dark:text-white">
+            {{ formatNumber(totalUsage?.data?.sites ?? 0) }}
+          </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            接入的 Wiki 站点
+          </p>
         </div>
       </UCard>
     </div>
 
+    <!-- 最近活动 -->
     <UCard>
-      <template #header>最近活动</template>
-      <div v-if="loadingRecent">
-        <USkeleton class="h-40" />
+      <template #header>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <UIcon name="i-heroicons-clock" class="w-5 h-5 text-gray-500" />
+            <span class="font-semibold text-gray-900 dark:text-white"
+              >最近活动</span
+            >
+          </div>
+          <UBadge color="neutral" variant="subtle" size="sm"> 实时更新 </UBadge>
+        </div>
+      </template>
+
+      <div v-if="loadingRecent" class="p-6">
+        <USkeleton class="h-64" />
       </div>
       <template v-else>
-        <div v-if="recentActivity?.data?.length">
+        <div v-if="recentActivity?.data?.length" class="overflow-hidden">
           <UTable
             :data="recentActivity.data"
-            sticky
-            class="flex-1 h-[50vh]"
             :columns="recentActivityColumns"
-          ></UTable>
+          />
         </div>
-        <div v-else class="text-gray-500">暂无数据</div>
+        <div v-else class="p-12 text-center">
+          <UIcon
+            name="i-heroicons-inbox"
+            class="w-16 h-16 mx-auto text-gray-400 mb-3"
+          />
+          <p class="text-gray-500 dark:text-gray-400">暂无活动数据</p>
+        </div>
       </template>
     </UCard>
   </div>
@@ -132,6 +192,10 @@ const formatDate = new Intl.DateTimeFormat(/** auto */ undefined, {
   timeStyle: 'short',
 }).format
 const formatTs = (ts: number) => formatDate(new Date(ts * 1000))
+
+const formatNumber = (num: number) => {
+  return new Intl.NumberFormat('zh-CN').format(num)
+}
 </script>
 
 <style scoped lang="scss"></style>

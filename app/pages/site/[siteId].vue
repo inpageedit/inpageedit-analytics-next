@@ -1,35 +1,139 @@
 <template>
-  <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-semibold">
-          {{ loadingSiteInfo ? '站点详情' : siteInfo?.data?.site.name }}
-        </h1>
-        <p class="text-gray-500">
-          <!-- {{ loadingSiteInfo ? '载入中……' : siteInfo?.data?.site.apiUrl }} -->
-          <template v-if="loadingSiteInfo">载入中……</template>
-          <template v-else>
-            <a :href="siteMainpageUrl" target="_blank">
-              {{ siteMainpageUrl }}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                class="inline h-4 w-4 middle"
-                fill="currentColor"
-              >
-                <path
-                  d="M10.5 2a.5.5 0 0 0 0 1h2.793L8.146 8.146a.5.5 0 0 0 .708.708L14 3.707V6.5a.5.5 0 0 0 1 0v-4A.5.5 0 0 0 14.5 2h-4zm3 5.5a.5.5 0 0 1 .5.5v6A1.5 1.5 0 0 1 12.5 15h-9A1.5 1.5 0 0 1 2 13.5v-9A1.5 1.5 0 0 1 3.5 3H9a.5.5 0 0 1 0 1H3.5A.5.5 0 0 0 3 4.5v9A.5.5 0 0 0 3.5 14h9a.5.5 0 0 0 .5-.5v-6a.5.5 0 0 1 .5-.5z"
-                />
-              </svg>
+  <div class="space-y-8">
+    <!-- 页面头部 -->
+    <div class="space-y-3">
+      <div class="flex items-center gap-2">
+        <UButton
+          to="/"
+          icon="i-heroicons-arrow-left"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+        >
+          返回
+        </UButton>
+      </div>
+
+      <div class="flex items-start gap-4">
+        <div class="shrink-0">
+          <div
+            class="w-16 h-16 bg-linear-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg"
+          >
+            <UIcon name="i-heroicons-globe-alt" class="w-8 h-8 text-white" />
+          </div>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div v-if="loadingSiteInfo" class="space-y-2">
+            <USkeleton class="h-8 w-64" />
+            <USkeleton class="h-5 w-96" />
+          </div>
+          <div v-else class="space-y-2">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+              {{ siteInfo?.data?.site.name }}
+            </h1>
+            <a
+              :href="siteMainpageUrl"
+              target="_blank"
+              class="inline-flex items-center gap-1 text-primary hover:underline"
+            >
+              <span>{{ siteHost }}</span>
+              <UIcon
+                name="i-heroicons-arrow-top-right-on-square"
+                class="w-4 h-4"
+              />
             </a>
-          </template>
-        </p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div>
-      <pre>{{ siteInfo }}</pre>
+    <!-- 统计卡片 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <UCard>
+        <div v-if="loadingSiteInfo">
+          <USkeleton class="h-16" />
+        </div>
+        <div v-else class="space-y-2">
+          <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+            <UIcon name="i-heroicons-cursor-arrow-ripple" class="w-5 h-5" />
+            <span class="text-sm font-medium">总使用次数</span>
+          </div>
+          <div class="text-3xl font-bold text-gray-900 dark:text-white">
+            {{ formatNumber(total ?? 0) }}
+          </div>
+        </div>
+      </UCard>
+
+      <UCard>
+        <div v-if="loadingSiteInfo">
+          <USkeleton class="h-16" />
+        </div>
+        <div v-else class="space-y-2">
+          <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+            <UIcon name="i-heroicons-code-bracket" class="w-5 h-5" />
+            <span class="text-sm font-medium">站点 ID</span>
+          </div>
+          <div class="text-3xl font-bold text-gray-900 dark:text-white">
+            #{{ site?.id ?? '-' }}
+          </div>
+        </div>
+      </UCard>
+
+      <UCard>
+        <div v-if="loadingSiteInfo">
+          <USkeleton class="h-16" />
+        </div>
+        <div v-else class="space-y-2">
+          <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+            <UIcon name="i-heroicons-server" class="w-5 h-5" />
+            <span class="text-sm font-medium">引擎类型</span>
+          </div>
+          <div class="text-xl font-semibold text-gray-900 dark:text-white">
+            MediaWiki
+          </div>
+        </div>
+      </UCard>
     </div>
+
+    <!-- 站点信息 -->
+    <UCard>
+      <template #header>
+        <div class="flex items-center gap-2">
+          <UIcon
+            name="i-heroicons-information-circle"
+            class="w-5 h-5 text-gray-500"
+          />
+          <span class="font-semibold text-gray-900 dark:text-white"
+            >站点详细信息</span
+          >
+        </div>
+      </template>
+
+      <div v-if="loadingSiteInfo" class="space-y-3">
+        <USkeleton class="h-6" />
+        <USkeleton class="h-6" />
+        <USkeleton class="h-6" />
+      </div>
+      <div v-else class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <div class="text-sm text-gray-500 dark:text-gray-400">API 地址</div>
+            <div
+              class="text-gray-900 dark:text-white font-mono text-sm break-all"
+            >
+              {{ siteApiUrl }}
+            </div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-sm text-gray-500 dark:text-gray-400">文章路径</div>
+            <div class="text-gray-900 dark:text-white font-mono text-sm">
+              {{ siteArticlePath || '-' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </UCard>
   </div>
 </template>
 
@@ -44,12 +148,30 @@ const { data: siteInfo, pending: loadingSiteInfo } =
     },
   })
 
-const siteMainpageUrl = computed(() => {
-  const apiUrl = siteInfo.value?.data?.site.apiUrl
-  const articlePath = siteInfo.value?.data?.site.articlePath
-  if (!apiUrl || !articlePath) return ''
-  return getWikiUrl(apiUrl, articlePath)?.href
+const site = computed(() => siteInfo.value?.data?.site)
+const siteName = computed(() => site.value?.name)
+const siteApiUrl = computed(() => site.value?.apiUrl)
+const siteArticlePath = computed(() => site.value?.articlePath)
+const total = computed(() => siteInfo.value?.data?.total)
+
+const getUrl = (title: string) => {
+  if (!siteApiUrl.value || !siteArticlePath.value) return ''
+  return getWikiUrl(siteApiUrl.value, siteArticlePath.value, title)?.href
+}
+
+const siteMainpageUrl = computed(() => getUrl(''))
+const siteHost = computed(() =>
+  siteMainpageUrl.value ? new URL(siteMainpageUrl.value).host : ''
+)
+
+useHead({
+  title: () =>
+    siteName.value ? `${siteName.value} (${siteHost.value})` : '站点详情',
 })
+
+const formatNumber = (num: number) => {
+  return new Intl.NumberFormat('zh-CN').format(num)
+}
 </script>
 
 <style scoped lang="scss"></style>

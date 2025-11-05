@@ -1,39 +1,175 @@
 <template>
-  <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-semibold">
-          <template v-if="loadingUserInfo">用户详情</template>
-          <template v-else>
-            {{ userName }}
-            <a :href="mwUserPageUrl" target="_blank" title="查看用户页面">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                class="inline h-6 w-6 middle"
-                fill="currentColor"
+  <div class="space-y-8">
+    <!-- 页面头部 -->
+    <div class="space-y-3">
+      <div class="flex items-center gap-2">
+        <UButton
+          to="/"
+          icon="i-heroicons-arrow-left"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+        >
+          返回
+        </UButton>
+      </div>
+
+      <div class="flex items-start gap-4">
+        <div class="shrink-0">
+          <div
+            class="w-16 h-16 bg-linear-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg"
+          >
+            <UIcon name="i-heroicons-user" class="w-8 h-8 text-white" />
+          </div>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div v-if="loadingUserInfo" class="space-y-2">
+            <USkeleton class="h-8 w-64" />
+            <USkeleton class="h-5 w-96" />
+          </div>
+          <div v-else class="space-y-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                {{ userName }}
+              </h1>
+              <a
+                :href="mwUserPageUrl"
+                target="_blank"
+                title="查看用户页面"
+                class="text-primary hover:text-primary/80 transition-colors"
               >
-                <path
-                  d="M10.5 2a.5.5 0 0 0 0 1h2.793L8.146 8.146a.5.5 0 0 0 .708.708L14 3.707V6.5a.5.5 0 0 0 1 0v-4A.5.5 0 0 0 14.5 2h-4zm3 5.5a.5.5 0 0 1 .5.5v6A1.5 1.5 0 0 1 12.5 15h-9A1.5 1.5 0 0 1 2 13.5v-9A1.5 1.5 0 0 1 3.5 3H9a.5.5 0 0 1 0 1H3.5A.5.5 0 0 0 3 4.5v9A.5.5 0 0 0 3.5 14h9a.5.5 0 0 0 .5-.5v-6a.5.5 0 0 1 .5-.5z"
+                <UIcon
+                  name="i-heroicons-arrow-top-right-on-square"
+                  class="w-5 h-5"
                 />
-              </svg>
-            </a>
-          </template>
-        </h1>
-        <p class="text-gray-500">
-          <template v-if="loadingUserInfo">载入中……</template>
-          <template v-else>
-            <RouterLink :to="`/site/${userInfo?.data?.site.id}`">{{
-              userInfo?.data?.site.name
-            }}</RouterLink>
-          </template>
-        </p>
+              </a>
+            </div>
+            <div
+              class="flex items-center gap-2 text-gray-600 dark:text-gray-400"
+            >
+              <UIcon name="i-heroicons-identification" class="w-4 h-4" />
+              <span>MediaWiki 用户 ID: #{{ userMwUserId }}</span>
+            </div>
+            <RouterLink
+              :to="`/site/${userInfo?.data?.site.id}`"
+              class="inline-flex items-center gap-1 text-primary hover:underline"
+            >
+              <UIcon name="i-heroicons-globe-alt" class="w-4 h-4" />
+              <span>{{ userInfo?.data?.site.name }}</span>
+            </RouterLink>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div>
-      <pre>{{ userInfo }}</pre>
+    <!-- 统计卡片 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <UCard>
+        <div v-if="loadingUserInfo">
+          <USkeleton class="h-16" />
+        </div>
+        <div v-else class="space-y-2">
+          <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+            <UIcon name="i-heroicons-pencil-square" class="w-5 h-5" />
+            <span class="text-sm font-medium">编辑次数</span>
+          </div>
+          <div class="text-3xl font-bold text-gray-900 dark:text-white">
+            {{ formatNumber(userInfo?.data?.total ?? 0) }}
+          </div>
+        </div>
+      </UCard>
+
+      <UCard>
+        <div v-if="loadingUserInfo">
+          <USkeleton class="h-16" />
+        </div>
+        <div v-else class="space-y-2">
+          <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+            <UIcon name="i-heroicons-finger-print" class="w-5 h-5" />
+            <span class="text-sm font-medium">用户 ID</span>
+          </div>
+          <div class="text-3xl font-bold text-gray-900 dark:text-white">
+            #{{ userData?.user.id ?? '-' }}
+          </div>
+        </div>
+      </UCard>
+
+      <UCard>
+        <div v-if="loadingUserInfo">
+          <USkeleton class="h-16" />
+        </div>
+        <div v-else class="space-y-2">
+          <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+            <UIcon name="i-heroicons-user-circle" class="w-5 h-5" />
+            <span class="text-sm font-medium">MW 用户 ID</span>
+          </div>
+          <div class="text-3xl font-bold text-gray-900 dark:text-white">
+            #{{ userMwUserId ?? '-' }}
+          </div>
+        </div>
+      </UCard>
     </div>
+
+    <!-- 用户信息 -->
+    <UCard>
+      <template #header>
+        <div class="flex items-center gap-2">
+          <UIcon
+            name="i-heroicons-information-circle"
+            class="w-5 h-5 text-gray-500"
+          />
+          <span class="font-semibold text-gray-900 dark:text-white"
+            >用户详细信息</span
+          >
+        </div>
+      </template>
+
+      <div v-if="loadingUserInfo" class="space-y-3">
+        <USkeleton class="h-6" />
+        <USkeleton class="h-6" />
+        <USkeleton class="h-6" />
+      </div>
+      <div v-else class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <div class="text-sm text-gray-500 dark:text-gray-400">用户名</div>
+            <div class="text-gray-900 dark:text-white font-medium">
+              {{ userName }}
+            </div>
+          </div>
+          <div class="space-y-1">
+            <div class="text-sm text-gray-500 dark:text-gray-400">所属站点</div>
+            <RouterLink
+              :to="`/site/${userSite?.id}`"
+              class="text-primary hover:underline font-medium"
+            >
+              {{ userSite?.name }}
+            </RouterLink>
+          </div>
+          <div class="space-y-1">
+            <div class="text-sm text-gray-500 dark:text-gray-400">用户页面</div>
+            <a
+              :href="mwUserPageUrl"
+              target="_blank"
+              class="text-primary hover:underline font-medium inline-flex items-center gap-1"
+            >
+              <span>访问用户页面</span>
+              <UIcon
+                name="i-heroicons-arrow-top-right-on-square"
+                class="w-3 h-3"
+              />
+            </a>
+          </div>
+          <div class="space-y-1">
+            <div class="text-sm text-gray-500 dark:text-gray-400">使用统计</div>
+            <div class="text-gray-900 dark:text-white font-medium">
+              共 {{ formatNumber(userInfo?.data?.total ?? 0) }} 次编辑
+            </div>
+          </div>
+        </div>
+      </div>
+    </UCard>
   </div>
 </template>
 
@@ -65,6 +201,10 @@ useHead({
     return userName.value ? `${userName.value}@${userSite.value?.name}` : '用户'
   },
 })
+
+const formatNumber = (num: number) => {
+  return new Intl.NumberFormat('zh-CN').format(num)
+}
 </script>
 
 <style scoped lang="scss"></style>
