@@ -72,6 +72,10 @@ import type {
 import type { TableColumn } from '@nuxt/ui'
 import { RouterLink } from 'vue-router'
 
+useHead({
+  title: '',
+})
+
 const { data: totalUsage, pending: loadingUsage } =
   useFetch<AnalyticsTotalUsageResponse>('/api/v6/usage/total')
 const { data: recentActivity, pending: loadingRecent } =

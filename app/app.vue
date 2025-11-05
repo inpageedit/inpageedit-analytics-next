@@ -5,3 +5,13 @@
     </NuxtLayout>
   </UApp>
 </template>
+
+<script setup lang="ts">
+useHead({
+  titleTemplate: (titleChunk) => {
+    return titleChunk
+      ? `${titleChunk} | InPageEdit Analytics`
+      : 'InPageEdit Analytics'
+  },
+})
+</script>

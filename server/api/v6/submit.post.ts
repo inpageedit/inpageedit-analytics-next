@@ -1,4 +1,21 @@
 import { IPEBeaconPayload } from '~~/shared/types'
+import {
+  checkWikiTitle,
+  checkUserName,
+  normalizeWikiTitle,
+} from '~~/shared/utils/wikiTitle'
+
+const WIKI_API_REGEXP = /^https?:\/\/[^\/]+\/api\.php$/
+
+const checkWikiApi = (api: string, referer: string | null) => {
+  if (!api.match(WIKI_API_REGEXP)) {
+    return false
+  }
+  if (referer && !api.startsWith(referer)) {
+    return false
+  }
+  return true
+}
 
 export default eventHandler(async (event) => {
   let body = await readBody<IPEBeaconPayload>(event)
@@ -23,7 +40,7 @@ export default eventHandler(async (event) => {
     return Response.json(
       {
         error: true,
-        code: 'ZodError',
+        code: 'InvalidPayload',
         statusMessage: 'Validation error',
         cause: error ? error.issues : undefined,
       },
@@ -32,10 +49,21 @@ export default eventHandler(async (event) => {
   }
 
   const siteApi = data.siteApi
-  const userName = data.userName
+  const userName = normalizeWikiTitle(data.userName)
   const mwUserId = data.userId
   const coreVersion = data.version
   const usages = data.usages
+
+  if (!checkWikiApi(siteApi, event.headers.get('referer'))) {
+    return Response.json(
+      {
+        error: true,
+        code: 'InvalidPayload',
+        statusMessage: 'Invalid site API URL.',
+      },
+      { status: 400 }
+    )
+  }
 
   // All usages must be within the last hour
   const mustBefore = Date.now()
@@ -64,6 +92,17 @@ export default eventHandler(async (event) => {
     )
   }
 
+  if (userName && !checkUserName(userName)) {
+    return Response.json(
+      {
+        error: true,
+        code: 'InvalidPayload',
+        statusMessage: 'Invalid username',
+      },
+      { status: 400 }
+    )
+  }
+
   if (!usages.length) {
     return Response.json(
       {
@@ -74,6 +113,22 @@ export default eventHandler(async (event) => {
       },
       { status: 200 }
     )
+  }
+
+  for (const usage of usages) {
+    if (usage.page) {
+      usage.page = normalizeWikiTitle(usage.page)
+    }
+    if (usage.page && !checkWikiTitle(usage.page)) {
+      return Response.json(
+        {
+          error: true,
+          code: 'InvalidPayload',
+          statusMessage: 'Invalid page title',
+        },
+        { status: 400 }
+      )
+    }
   }
 
   const wikiSite = await getWikiSiteFromDB(event, siteApi)

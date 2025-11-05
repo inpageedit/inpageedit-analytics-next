@@ -5,7 +5,7 @@
         <h1 class="text-2xl font-semibold">
           <template v-if="loadingUserInfo">用户详情</template>
           <template v-else>
-            {{ userInfo?.data?.user.name }}
+            {{ userName }}
             <a :href="mwUserPageUrl" target="_blank" title="查看用户页面">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -48,15 +48,22 @@ const { data: userInfo, pending: loadingUserInfo } =
     },
   })
 
+const userData = computed(() => userInfo.value?.data)
+const userName = computed(() => userData.value?.user.name)
+const userMwUserId = computed(() => userData.value?.user.mwUserId)
+const userSite = computed(() => userData.value?.site)
+
 const mwUserPageUrl = computed(() => {
-  const apiUrl = userInfo.value?.data?.site.apiUrl
-  const articlePath = userInfo.value?.data?.site.articlePath
+  const apiUrl = userSite.value?.apiUrl
+  const articlePath = userSite.value?.articlePath
   if (!apiUrl || !articlePath) return ''
-  return getWikiUrl(
-    apiUrl,
-    articlePath,
-    `User:${userInfo.value?.data?.user.name}`
-  )?.href
+  return getWikiUrl(apiUrl, articlePath, `User:${userName.value}`)?.href
+})
+
+useHead({
+  title: () => {
+    return userName.value ? `${userName.value}@${userSite.value?.name}` : '用户'
+  },
 })
 </script>
 
