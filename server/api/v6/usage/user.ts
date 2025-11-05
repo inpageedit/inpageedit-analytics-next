@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     return Response.json(
       {
         error: true,
-        statusText: 'Invalid user ID',
+        message: 'Invalid user ID',
       },
       {
         status: 400,
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
     return Response.json(
       {
         error: true,
-        statusText: 'User not found',
+        message: 'User not found',
       },
       {
         status: 404,

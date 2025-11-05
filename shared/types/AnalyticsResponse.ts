@@ -62,3 +62,12 @@ export type AnalyticsSiteUsageResponse = AnalyticsResponse<{
   site: AnalyticsSite
   total: number
 }>
+
+export interface AnalyticsDailyUsageItem {
+  date: string
+  count: number
+}
+
+export type AnalyticsDailyUsageResponse = AnalyticsResponse<
+  AnalyticsDailyUsageItem[]
+>

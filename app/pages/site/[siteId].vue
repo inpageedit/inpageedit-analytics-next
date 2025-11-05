@@ -2,17 +2,8 @@
   <div class="space-y-8">
     <!-- 页面头部 -->
     <div class="space-y-3">
-      <div class="flex items-center gap-2">
-        <UButton
-          to="/"
-          icon="i-heroicons-arrow-left"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-        >
-          返回
-        </UButton>
-      </div>
+      <!-- 面包屑导航 -->
+      <UBreadcrumb :items="breadcrumbItems" />
 
       <div class="flex items-start gap-4">
         <div class="shrink-0">
@@ -172,6 +163,19 @@ useHead({
 const formatNumber = (num: number) => {
   return new Intl.NumberFormat('zh-CN').format(num)
 }
+
+const breadcrumbItems = computed(() => [
+  {
+    label: '首页',
+    to: '/',
+    icon: 'i-heroicons-home',
+  },
+  {
+    label: loadingSiteInfo.value ? '站点详情' : siteName.value || '站点',
+    to: '#',
+    icon: 'i-heroicons-globe-alt',
+  },
+])
 </script>
 
 <style scoped lang="scss"></style>

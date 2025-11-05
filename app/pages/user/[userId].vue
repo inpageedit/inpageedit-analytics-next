@@ -2,17 +2,8 @@
   <div class="space-y-8">
     <!-- 页面头部 -->
     <div class="space-y-3">
-      <div class="flex items-center gap-2">
-        <UButton
-          to="/"
-          icon="i-heroicons-arrow-left"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-        >
-          返回
-        </UButton>
-      </div>
+      <!-- 面包屑导航 -->
+      <UBreadcrumb :items="breadcrumbItems" />
 
       <div class="flex items-start gap-4">
         <div class="shrink-0">
@@ -72,7 +63,7 @@
         <div v-else class="space-y-2">
           <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
             <UIcon name="i-heroicons-pencil-square" class="w-5 h-5" />
-            <span class="text-sm font-medium">编辑次数</span>
+            <span class="text-sm font-medium">使用次数</span>
           </div>
           <div class="text-3xl font-bold text-gray-900 dark:text-white">
             {{ formatNumber(userInfo?.data?.total ?? 0) }}
@@ -164,7 +155,7 @@
           <div class="space-y-1">
             <div class="text-sm text-gray-500 dark:text-gray-400">使用统计</div>
             <div class="text-gray-900 dark:text-white font-medium">
-              共 {{ formatNumber(userInfo?.data?.total ?? 0) }} 次编辑
+              {{ formatNumber(userInfo?.data?.total ?? 0) }}
             </div>
           </div>
         </div>
@@ -205,6 +196,32 @@ useHead({
 const formatNumber = (num: number) => {
   return new Intl.NumberFormat('zh-CN').format(num)
 }
+
+const breadcrumbItems = computed(() => {
+  const items = [
+    {
+      label: '首页',
+      to: '/',
+      icon: 'i-heroicons-home',
+    },
+  ]
+
+  if (!loadingUserInfo.value && userSite.value) {
+    items.push({
+      label: userSite.value.name,
+      to: `/site/${userSite.value.id}`,
+      icon: 'i-heroicons-globe-alt',
+    })
+  }
+
+  items.push({
+    label: loadingUserInfo.value ? '用户详情' : userName.value || '用户',
+    to: '#',
+    icon: 'i-heroicons-user',
+  })
+
+  return items
+})
 </script>
 
 <style scoped lang="scss"></style>

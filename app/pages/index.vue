@@ -35,7 +35,7 @@
           <div class="text-4xl font-bold text-gray-900 dark:text-white">
             {{ formatNumber(totalUsage?.data?.total ?? 0) }}
           </div>
-          <p class="text-sm text-gray-500 dark:text-gray-400">累计编辑次数</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">累计使用次数</p>
         </div>
       </UCard>
 
