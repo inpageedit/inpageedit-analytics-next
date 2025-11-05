@@ -35,6 +35,7 @@ export interface AnalyticsRecentActivityItem {
   pageName: string | null
   feature: string
   subtype: string | null
+  coreVersion: string | null
   createdAt: number
   user: AnalyticsUser
   site: AnalyticsSite

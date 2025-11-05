@@ -4,10 +4,14 @@ import { IPEBeaconPayload } from '~~/shared/types'
 
 export async function logUsages(
   event: H3Event,
-  siteId: number,
-  userId: number,
-  usages: IPEBeaconPayload['usages'][number][]
+  data: {
+    siteId: number
+    userId: number
+    usages: IPEBeaconPayload['usages'][number][]
+    coreVersion?: string
+  }
 ) {
+  const { siteId, userId, usages, coreVersion } = data
   if (!usages.length) return
 
   const drizzle = useDrizzle(event)
@@ -20,6 +24,7 @@ export async function logUsages(
       feature: u.feature,
       subtype: u.subtype,
       pageName: u.page,
+      coreVersion,
       createdAt: Math.floor(u.ts / 1000), // 转为 UTC 秒
     }))
     .sort((a, b) => a.createdAt - b.createdAt) // 按时间戳排序

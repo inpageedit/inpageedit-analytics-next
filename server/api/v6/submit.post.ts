@@ -34,6 +34,7 @@ export default eventHandler(async (event) => {
   const siteApi = data.siteApi
   const userName = data.userName
   const mwUserId = data.userId
+  const coreVersion = data.version
   const usages = data.usages
 
   // All usages must be within the last hour
@@ -83,7 +84,12 @@ export default eventHandler(async (event) => {
     userName
   )
 
-  const result = await logUsages(event, wikiSite.id, wikiUser.id, usages)
+  const result = await logUsages(event, {
+    siteId: wikiSite.id,
+    userId: wikiUser.id,
+    coreVersion,
+    usages,
+  })
   return Response.json({
     data: {
       changes: result.length,

@@ -84,7 +84,7 @@ const recentActivityColumns: TableColumn<AnalyticsRecentActivityItem>[] = [
       return h(
         RouterLink,
         { to: `/user/${row.original.user.id}` },
-        () => row.original.user.name
+        () => `${row.original.user.name} (#${row.original.user.mwUserId})`
       )
     },
   },
@@ -94,14 +94,25 @@ const recentActivityColumns: TableColumn<AnalyticsRecentActivityItem>[] = [
       return h(
         RouterLink,
         { to: `/site/${row.original.site.id}` },
-        () => row.original.site.name
+        () =>
+          `${row.original.site.name} (${
+            new URL(row.original.site.apiUrl).host
+          })`
       )
     },
   },
   {
     header: '功能',
     cell({ row }) {
-      return row.original.feature
+      return `${row.original.feature}${
+        row.original.subtype ? `/${row.original.subtype}` : ''
+      }`
+    },
+  },
+  {
+    header: '版本',
+    cell({ row }) {
+      return row.original.coreVersion ?? '-'
     },
   },
   {

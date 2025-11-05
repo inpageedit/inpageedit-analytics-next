@@ -19,4 +19,11 @@ export default defineNuxtConfig({
   fonts: {
     provider: 'local',
   },
+  server: {},
+  devServer: {
+    port: 20105,
+    cors: {
+      origin: '*',
+    },
+  },
 })

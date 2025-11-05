@@ -8,13 +8,12 @@ import {
 } from 'drizzle-orm/sqlite-core'
 
 const CURRENT_TIMESTAMP_INTEGER = sql`(STRFTIME('%s', 'now'))`
-const COLUMN_DEFAULT_NOW = integer()
-  .notNull()
-  .default(CURRENT_TIMESTAMP_INTEGER)
-const timestamp = {
-  createdAt: COLUMN_DEFAULT_NOW,
-  updatedAt: COLUMN_DEFAULT_NOW,
-}
+const useCurrentTimestamp = () =>
+  integer().notNull().default(CURRENT_TIMESTAMP_INTEGER)
+const useTimestampColumns = () => ({
+  createdAt: useCurrentTimestamp(),
+  updatedAt: useCurrentTimestamp(),
+})
 
 export const wikiSiteTable = table(
   'wiki_site',
@@ -26,7 +25,7 @@ export const wikiSiteTable = table(
     migratedToId: integer().references((): any => wikiSiteTable.id, {
       onDelete: 'set null',
     }),
-    ...timestamp,
+    ...useTimestampColumns(),
   },
   (t) => [
     uniqueIndex('ux_site_api_url').on(t.apiUrl),
@@ -43,7 +42,7 @@ export const wikiUserTable = table(
     siteId: integer()
       .notNull()
       .references(() => wikiSiteTable.id),
-    ...timestamp,
+    ...useTimestampColumns(),
   },
   (t) => [
     uniqueIndex('ux_site_user').on(t.siteId, t.mwUserId),
@@ -64,7 +63,8 @@ export const eventLogTable = table(
     pageName: text(),
     feature: text().notNull(),
     subtype: text(),
-    createdAt: COLUMN_DEFAULT_NOW,
+    coreVersion: text(),
+    ...useTimestampColumns(),
   },
   (e) => [index('ix_event_time').on(e.createdAt)]
 )

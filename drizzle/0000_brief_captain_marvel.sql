@@ -5,7 +5,9 @@ CREATE TABLE `event_log` (
 	`page_name` text,
 	`feature` text NOT NULL,
 	`subtype` text,
+	`core_version` text,
 	`created_at` integer DEFAULT (STRFTIME('%s', 'now')) NOT NULL,
+	`updated_at` integer DEFAULT (STRFTIME('%s', 'now')) NOT NULL,
 	FOREIGN KEY (`site_id`) REFERENCES `wiki_site`(`id`) ON UPDATE no action ON DELETE restrict,
 	FOREIGN KEY (`user_id`) REFERENCES `wiki_user`(`id`) ON UPDATE no action ON DELETE restrict
 );
@@ -18,6 +20,7 @@ CREATE TABLE `wiki_site` (
 	`article_path` text NOT NULL,
 	`migrated_to_id` integer,
 	`created_at` integer DEFAULT (STRFTIME('%s', 'now')) NOT NULL,
+	`updated_at` integer DEFAULT (STRFTIME('%s', 'now')) NOT NULL,
 	FOREIGN KEY (`migrated_to_id`) REFERENCES `wiki_site`(`id`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
@@ -29,6 +32,7 @@ CREATE TABLE `wiki_user` (
 	`mw_user_id` integer NOT NULL,
 	`site_id` integer NOT NULL,
 	`created_at` integer DEFAULT (STRFTIME('%s', 'now')) NOT NULL,
+	`updated_at` integer DEFAULT (STRFTIME('%s', 'now')) NOT NULL,
 	FOREIGN KEY (`site_id`) REFERENCES `wiki_site`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
