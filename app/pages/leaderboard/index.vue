@@ -1,14 +1,21 @@
 <template>
   <div class="space-y-8">
     <!-- 页面标题 -->
-    <div class="space-y-2">
-      <div class="flex items-center gap-3">
-        <UIcon name="i-heroicons-trophy" class="w-8 h-8 text-primary" />
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">排行榜</h1>
+    <div class="space-y-3">
+      <!-- 面包屑导航 -->
+      <UBreadcrumb :items="breadcrumbItems" />
+
+      <div class="space-y-2">
+        <div class="flex items-center gap-3">
+          <UIcon name="i-heroicons-trophy" class="w-8 h-8 text-primary" />
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            排行榜
+          </h1>
+        </div>
+        <p class="text-gray-600 dark:text-gray-400">
+          查看最近 30 天内的站点和用户使用排行
+        </p>
       </div>
-      <p class="text-gray-600 dark:text-gray-400">
-        查看最近 30 天内的站点和用户使用排行
-      </p>
     </div>
 
     <!-- 排行榜导航卡片 -->
@@ -119,4 +126,18 @@
 useHead({
   title: '排行榜',
 })
+
+// 面包屑导航
+const breadcrumbItems = [
+  {
+    label: '首页',
+    to: '/',
+    icon: 'i-heroicons-home',
+  },
+  {
+    label: '排行榜',
+    to: '#',
+    icon: 'i-heroicons-trophy',
+  },
+]
 </script>

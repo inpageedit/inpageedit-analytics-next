@@ -1,17 +1,10 @@
 <template>
   <div class="space-y-8">
-    <!-- 页面标题和返回按钮 -->
-    <div class="space-y-4">
-      <div class="flex items-center gap-3">
-        <UButton
-          to="/leaderboard"
-          icon="i-heroicons-arrow-left"
-          color="neutral"
-          variant="ghost"
-        >
-          返回
-        </UButton>
-      </div>
+    <!-- 页面标题 -->
+    <div class="space-y-3">
+      <!-- 面包屑导航 -->
+      <UBreadcrumb :items="breadcrumbItems" />
+
       <div class="space-y-2">
         <div class="flex items-center gap-3">
           <UIcon name="i-heroicons-globe-alt" class="w-8 h-8 text-purple-500" />
@@ -245,4 +238,23 @@ const loadMore = async () => {
   await refresh()
   loadingMore.value = false
 }
+
+// 面包屑导航
+const breadcrumbItems = [
+  {
+    label: '首页',
+    to: '/',
+    icon: 'i-heroicons-home',
+  },
+  {
+    label: '排行榜',
+    to: '/leaderboard',
+    icon: 'i-heroicons-trophy',
+  },
+  {
+    label: '站点排行榜',
+    to: '#',
+    icon: 'i-heroicons-globe-alt',
+  },
+]
 </script>

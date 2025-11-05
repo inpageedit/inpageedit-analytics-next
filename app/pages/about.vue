@@ -1,5 +1,8 @@
 <template>
   <div class="space-y-8">
+    <!-- 面包屑导航 -->
+    <UBreadcrumb :items="breadcrumbItems" />
+
     <!-- 页面标题 -->
     <div class="text-center space-y-4 py-8">
       <div class="flex justify-center">
@@ -265,6 +268,20 @@
 useHead({
   title: '关于',
 })
+
+// 面包屑导航
+const breadcrumbItems = [
+  {
+    label: '首页',
+    to: '/',
+    icon: 'i-heroicons-home',
+  },
+  {
+    label: '关于',
+    to: '#',
+    icon: 'i-heroicons-information-circle',
+  },
+]
 </script>
 
 <style scoped lang="scss"></style>

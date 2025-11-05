@@ -41,15 +41,24 @@
 
       <UCard>
         <template #header>
-          <div class="flex items-center gap-2">
+          <NuxtLink
+            to="/leaderboard/user"
+            class="flex items-center justify-between group hover:opacity-80 transition-opacity"
+          >
+            <div class="flex items-center gap-2">
+              <UIcon
+                name="i-heroicons-user-group"
+                class="w-5 h-5 text-green-500"
+              />
+              <span class="font-semibold text-gray-700 dark:text-gray-300"
+                >总用户量</span
+              >
+            </div>
             <UIcon
-              name="i-heroicons-user-group"
-              class="w-5 h-5 text-green-500"
+              name="i-heroicons-arrow-right"
+              class="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors"
             />
-            <span class="font-semibold text-gray-700 dark:text-gray-300"
-              >总用户量</span
-            >
-          </div>
+          </NuxtLink>
         </template>
         <div v-if="loadingUsage" class="h-20">
           <USkeleton class="h-full" />
@@ -64,15 +73,24 @@
 
       <UCard>
         <template #header>
-          <div class="flex items-center gap-2">
+          <NuxtLink
+            to="/leaderboard/site"
+            class="flex items-center justify-between group hover:opacity-80 transition-opacity"
+          >
+            <div class="flex items-center gap-2">
+              <UIcon
+                name="i-heroicons-globe-alt"
+                class="w-5 h-5 text-purple-500"
+              />
+              <span class="font-semibold text-gray-700 dark:text-gray-300"
+                >总站点数</span
+              >
+            </div>
             <UIcon
-              name="i-heroicons-globe-alt"
-              class="w-5 h-5 text-purple-500"
+              name="i-heroicons-arrow-right"
+              class="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors"
             />
-            <span class="font-semibold text-gray-700 dark:text-gray-300"
-              >总站点数</span
-            >
-          </div>
+          </NuxtLink>
         </template>
         <div v-if="loadingUsage" class="h-20">
           <USkeleton class="h-full" />
