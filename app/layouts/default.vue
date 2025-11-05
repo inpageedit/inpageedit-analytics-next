@@ -30,6 +30,14 @@
               首页
             </UButton>
             <UButton
+              to="/leaderboard"
+              color="neutral"
+              variant="ghost"
+              icon="i-heroicons-trophy"
+            >
+              排行榜
+            </UButton>
+            <UButton
               to="/about"
               color="neutral"
               variant="ghost"

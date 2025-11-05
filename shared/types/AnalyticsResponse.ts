@@ -71,3 +71,24 @@ export interface AnalyticsDailyUsageItem {
 export type AnalyticsDailyUsageResponse = AnalyticsResponse<
   AnalyticsDailyUsageItem[]
 >
+
+export interface AnalyticsLeaderboardSiteItem {
+  siteId: number
+  count: number
+  site: AnalyticsSite | null
+}
+
+export type AnalyticsLeaderboardSiteResponse = AnalyticsResponse<
+  AnalyticsLeaderboardSiteItem[]
+>
+
+export interface AnalyticsLeaderboardUserItem {
+  userId: number
+  count: number
+  user: AnalyticsUser | null
+  site: AnalyticsSite | null
+}
+
+export type AnalyticsLeaderboardUserResponse = AnalyticsResponse<
+  AnalyticsLeaderboardUserItem[]
+>
