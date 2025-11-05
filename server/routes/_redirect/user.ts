@@ -1,5 +1,5 @@
-import { and, eq } from 'drizzle-orm'
-import { wikiSiteTable, wikiUserTable } from '~~/db/schema.js'
+import { findWikiSite } from '~~/server/utils/wikiSite.js'
+import { findWikiUser } from '~~/server/utils/wikiUser.js'
 
 export default eventHandler(async (event) => {
   const query = getQuery(event)
@@ -13,23 +13,25 @@ export default eventHandler(async (event) => {
     })
   }
 
-  const drizzle = useDrizzle(event)
+  const siteResult = await findWikiSite(event, siteApi)
 
-  const [user] = await drizzle
-    .select({
-      id: wikiUserTable.id,
+  if (!siteResult) {
+    return new Response(null, {
+      headers: {
+        location: '/404?code=site_not_found',
+      },
+      status: 307,
     })
-    .from(wikiUserTable)
-    .where(
-      and(
-        eq(wikiUserTable.mwUserId, mwUserId),
-        eq(wikiSiteTable.apiUrl, siteApi)
-      )
-    )
-    .leftJoin(wikiSiteTable, eq(wikiUserTable.siteId, wikiSiteTable.id))
-    .limit(1)
+  }
 
-  if (!user?.id) {
+  // 查找用户，需要考虑用户可能关联到原站点或迁移后的站点
+  const siteIds = siteResult.isMigrated
+    ? [siteResult.originalSite.id, siteResult.site.id]
+    : [siteResult.site.id]
+
+  const user = await findWikiUser(event, siteIds, mwUserId)
+
+  if (!user) {
     return new Response(null, {
       headers: {
         location: '/404?code=user_not_found',
@@ -37,6 +39,7 @@ export default eventHandler(async (event) => {
       status: 307,
     })
   }
+
   return new Response(null, {
     headers: {
       location: `/user/${user.id}`,

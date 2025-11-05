@@ -1,5 +1,4 @@
-import { and, eq } from 'drizzle-orm'
-import { wikiSiteTable, wikiUserTable } from '~~/db/schema.js'
+import { findWikiSite } from '~~/server/utils/wikiSite.js'
 
 export default eventHandler(async (event) => {
   const query = getQuery(event)
@@ -12,17 +11,9 @@ export default eventHandler(async (event) => {
     })
   }
 
-  const drizzle = useDrizzle(event)
+  const siteResult = await findWikiSite(event, siteApi)
 
-  const [site] = await drizzle
-    .select({
-      id: wikiSiteTable.id,
-    })
-    .from(wikiSiteTable)
-    .where(and(eq(wikiSiteTable.apiUrl, siteApi)))
-    .limit(1)
-
-  if (!site?.id) {
+  if (!siteResult) {
     return new Response(null, {
       headers: {
         location: '/404?code=site_not_found',
@@ -30,9 +21,10 @@ export default eventHandler(async (event) => {
       status: 307,
     })
   }
+
   return new Response(null, {
     headers: {
-      location: `/site/${site.id}`,
+      location: `/site/${siteResult.site.id}`,
       // this will never change, so we can set a long cache
       'cache-control': 'max-age=2592000',
     },

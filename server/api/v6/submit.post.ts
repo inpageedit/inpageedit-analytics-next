@@ -49,8 +49,9 @@ export default eventHandler(async (event) => {
   }
 
   const siteApi = data.siteApi
-  const userName = normalizeWikiTitle(data.userName)
+  const siteName = data.siteName
   const mwUserId = data.userId
+  const userName = normalizeWikiTitle(data.userName)
   const coreVersion = data.version
   const usages = data.usages
 
@@ -131,8 +132,8 @@ export default eventHandler(async (event) => {
     }
   }
 
-  const wikiSite = await getWikiSiteFromDB(event, siteApi)
-  const wikiUser = await getWikiUserFromDB(
+  const wikiSite = await ensureWikiSiteByPayload(event, siteApi, siteName)
+  const wikiUser = await ensureWikiUserByPayload(
     event,
     wikiSite.id,
     mwUserId,
