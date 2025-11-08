@@ -18,6 +18,11 @@ const checkWikiApi = (api: string, referer: string | null) => {
 }
 
 export default eventHandler(async (event) => {
+  setHeaders(event, {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  })
+
   let body = await readBody<IPEBeaconPayload>(event)
   if (typeof body === 'string') {
     try {

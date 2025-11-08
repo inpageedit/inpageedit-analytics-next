@@ -1,6 +1,8 @@
 export default eventHandler(async (event) => {
-  const body = await readBody(event)
-  console.log(body)
+  setHeaders(event, {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  })
   return Response.json({
     error: true,
     message: 'API v5 is deprecated, please use API v6 instead.',
