@@ -24,7 +24,7 @@ export default eventHandler(async (event) => {
 
   return new Response(null, {
     headers: {
-      location: `/site/${siteResult.site.id}`,
+      location: `/site/${siteResult.current.id}`,
       // this will never change, so we can set a long cache
       'cache-control': 'max-age=2592000',
     },

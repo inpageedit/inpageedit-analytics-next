@@ -26,8 +26,8 @@ export default eventHandler(async (event) => {
 
   // 查找用户，需要考虑用户可能关联到原站点或迁移后的站点
   const siteIds = siteResult.isMigrated
-    ? [siteResult.originalSite.id, siteResult.site.id]
-    : [siteResult.site.id]
+    ? [siteResult.original.id, siteResult.current.id]
+    : [siteResult.current.id]
 
   const user = await findWikiUser(event, siteIds, mwUserId)
 

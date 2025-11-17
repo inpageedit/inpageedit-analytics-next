@@ -13,24 +13,9 @@ export const ensureWikiSiteByPayload = async (
   apiUrl: string,
   siteName?: string
 ) => {
-  const drizzle = useDrizzle(event)
-
-  // 创建 wikiSiteTable 的别名用于 join
-  const migratedToSite = alias(wikiSiteTable, 'migratedToSite')
-
-  const [existed] = await drizzle
-    .select({
-      current: wikiSiteTable,
-      migratedTo: migratedToSite,
-    })
-    .from(wikiSiteTable)
-    .leftJoin(migratedToSite, eq(wikiSiteTable.migratedToId, migratedToSite.id))
-    .where(eq(wikiSiteTable.apiUrl, apiUrl))
-    .limit(1)
-
-  // 如果找到记录，优先返回 migratedTo（如果存在），否则返回 current
+  const existed = await findWikiSite(event, apiUrl)
   if (existed) {
-    return existed.migratedTo ?? existed.current
+    return existed.current
   }
 
   // 优先尝试从 API 获取站点信息
@@ -124,7 +109,7 @@ export const findWikiSite = async (event: H3Event, apiUrl: string) => {
 
   const [result] = await drizzle
     .select({
-      current: wikiSiteTable,
+      original: wikiSiteTable,
       migratedTo: migratedToSite,
     })
     .from(wikiSiteTable)
@@ -136,11 +121,13 @@ export const findWikiSite = async (event: H3Event, apiUrl: string) => {
 
   // 返回包含原站点和迁移目标站点的信息
   return {
-    // 优先返回迁移目标站点，如果不存在则返回当前站点
-    site: result.migratedTo ?? result.current,
-    // 同时提供原站点信息
-    originalSite: result.current,
-    // 是否已迁移
-    isMigrated: !!result.migratedTo,
+    /** 当前生效的站点信息 */
+    current: result.migratedTo ?? result.original,
+    /** 原始站点信息 */
+    original: result.original,
+    /** 迁移目标站点信息 */
+    migratedTo: result.migratedTo,
+    /** 是否已迁移 */
+    isMigrated: Boolean(result.migratedTo),
   }
 }
