@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3'
 import { wikiUserTable } from '@@/db/schema.js'
-import { and, eq, or, sql } from 'drizzle-orm'
+import { and, eq, inArray, sql } from 'drizzle-orm'
 
 export const ensureWikiUserByPayload = async (
   event: H3Event,
@@ -9,6 +9,10 @@ export const ensureWikiUserByPayload = async (
   userName: string
 ) => {
   const drizzle = useDrizzle(event)
+
+  const existed = await findWikiUser(event, siteId, mwUserId)
+  if (existed) return existed
+
   const [user] = await drizzle
     .insert(wikiUserTable)
     .values({ name: userName, siteId, mwUserId })
@@ -19,19 +23,6 @@ export const ensureWikiUserByPayload = async (
     })
     .returning()
   if (user) return user
-
-  // sometimes, RETURNING is not supported, so we need to fallback to select
-  const [fallback] = await drizzle
-    .select()
-    .from(wikiUserTable)
-    .where(
-      and(
-        eq(wikiUserTable.siteId, siteId),
-        eq(wikiUserTable.mwUserId, mwUserId)
-      )
-    )
-    .limit(1)
-  if (fallback) return fallback
 
   throw new Error('Failed to insert wiki user to DB')
 }
@@ -56,9 +47,7 @@ export const findWikiUser = async (
     .where(
       and(
         eq(wikiUserTable.mwUserId, mwUserId),
-        siteIdArray.length === 1
-          ? eq(wikiUserTable.siteId, siteIdArray[0])
-          : or(...siteIdArray.map((id) => eq(wikiUserTable.siteId, id)))
+        inArray(wikiUserTable.siteId, siteIdArray)
       )
     )
     .limit(1)
