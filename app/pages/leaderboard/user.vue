@@ -22,130 +22,47 @@
     </div>
 
     <!-- 排行榜卡片 -->
-    <UCard>
-      <template #header>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <UIcon name="i-heroicons-trophy" class="w-5 h-5 text-amber-500" />
-            <span class="font-semibold text-gray-900 dark:text-white">
-              用户活跃排名
-            </span>
-          </div>
-          <UBadge v-if="!pending" color="primary" variant="subtle">
-            共 {{ leaderboard?.data?.length || 0 }} 位用户
-          </UBadge>
-        </div>
-      </template>
-
-      <!-- 加载中 -->
-      <div v-if="pending" class="space-y-4">
-        <USkeleton v-for="i in 10" :key="i" class="h-16" />
-      </div>
-
-      <!-- 排行榜列表 -->
-      <div v-else-if="leaderboard?.data?.length" class="space-y-2">
-        <div
-          v-for="(item, index) in leaderboard.data"
-          :key="item.userId"
-          class="flex items-center gap-4 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-          :class="{
-            'bg-amber-50 dark:bg-amber-950/20': index === 0,
-            'bg-gray-50 dark:bg-gray-800/30': index === 1,
-            'bg-orange-50 dark:bg-orange-950/20': index === 2,
-          }"
+    <LeaderboardList
+      :items="leaderboard?.data as AnalyticsLeaderboardUserItem[] | undefined"
+      :pending="pending"
+      title="用户活跃排名"
+      unit="位用户"
+      :has-more="leaderboard?.pager?.hasMore"
+      :loading-more="loadingMore"
+      @load-more="loadMore"
+    >
+      <template
+        #item-content="{ item }: { item: AnalyticsLeaderboardUserItem }"
+      >
+        <NuxtLink
+          :to="`/user/${item.userId}`"
+          class="group flex items-center gap-2"
         >
-          <!-- 排名和皇冠 -->
-          <div class="flex items-center justify-center w-12 shrink-0">
-            <UIcon
-              v-if="index === 0"
-              name="i-heroicons-star-solid"
-              class="w-8 h-8 text-amber-400"
-              title="金牌"
-            />
-            <UIcon
-              v-else-if="index === 1"
-              name="i-heroicons-star-solid"
-              class="w-8 h-8 text-gray-400"
-              title="银牌"
-            />
-            <UIcon
-              v-else-if="index === 2"
-              name="i-heroicons-star-solid"
-              class="w-8 h-8 text-orange-400"
-              title="铜牌"
-            />
-            <span
-              v-else
-              class="text-2xl font-bold text-gray-400 dark:text-gray-600"
-            >
-              {{ index + 1 }}
-            </span>
-          </div>
-
-          <!-- 用户信息 -->
-          <div class="flex-1 min-w-0">
-            <NuxtLink
-              :to="`/user/${item.userId}`"
-              class="group flex items-center gap-2"
-            >
-              <h3
-                class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary transition-colors truncate"
-              >
-                {{ item.user?.name || `用户 #${item.userId}` }}
-              </h3>
-              <UIcon
-                name="i-heroicons-arrow-top-right-on-square"
-                class="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-              />
-            </NuxtLink>
-            <div class="flex items-center gap-2 mt-1">
-              <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
-                来自
-                <NuxtLink
-                  v-if="item.site"
-                  :to="`/site/${item.site.id}`"
-                  class="hover:text-primary transition-colors"
-                >
-                  {{ item.site.name }}
-                </NuxtLink>
-                <span v-else>未知站点</span>
-              </p>
-            </div>
-          </div>
-
-          <!-- 使用次数 -->
-          <div class="text-right shrink-0">
-            <div class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ formatNumber(item.count) }}
-            </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400">次使用</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 空状态 -->
-      <div v-else class="text-center py-12">
-        <UIcon
-          name="i-heroicons-inbox"
-          class="w-16 h-16 text-gray-300 dark:text-gray-700 mx-auto mb-4"
-        />
-        <p class="text-gray-500 dark:text-gray-400">暂无数据</p>
-      </div>
-
-      <!-- 分页 -->
-      <template v-if="leaderboard?.pager?.hasMore" #footer>
-        <div class="flex justify-center">
-          <UButton
-            color="primary"
-            variant="soft"
-            @click="loadMore"
-            :loading="loadingMore"
+          <h3
+            class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary transition-colors truncate"
           >
-            加载更多
-          </UButton>
+            {{ item.user?.name || `用户 #${item.userId}` }}
+          </h3>
+          <UIcon
+            name="i-heroicons-arrow-top-right-on-square"
+            class="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+          />
+        </NuxtLink>
+        <div class="flex items-center gap-2 mt-1">
+          <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+            来自
+            <NuxtLink
+              v-if="item.site"
+              :to="`/site/${item.site.id}`"
+              class="hover:text-primary transition-colors"
+            >
+              {{ item.site.name }}
+            </NuxtLink>
+            <span v-else>未知站点</span>
+          </p>
         </div>
       </template>
-    </UCard>
+    </LeaderboardList>
 
     <!-- 说明信息 -->
     <UCard>
@@ -170,16 +87,16 @@
         <p>
           •
           <UIcon
-            name="i-heroicons-star-solid"
-            class="w-4 h-4 inline text-amber-400"
+            name="i-heroicons-trophy"
+            class="w-4 h-4 inline text-amber-500"
           />
           金牌、<UIcon
             name="i-heroicons-star-solid"
-            class="w-4 h-4 inline text-gray-400"
+            class="w-4 h-4 inline text-gray-500"
           />
           银牌、<UIcon
             name="i-heroicons-star-solid"
-            class="w-4 h-4 inline text-orange-400"
+            class="w-4 h-4 inline text-orange-500"
           />
           铜牌分别授予前三名
         </p>
@@ -189,7 +106,10 @@
 </template>
 
 <script setup lang="ts">
-import type { AnalyticsLeaderboardUserResponse } from '#shared/types/AnalyticsResponse'
+import type {
+  AnalyticsLeaderboardUserResponse,
+  AnalyticsLeaderboardUserItem,
+} from '#shared/types/AnalyticsResponse'
 
 useHead({
   title: '用户排行榜',

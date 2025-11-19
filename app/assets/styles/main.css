@@ -1,2 +1,16 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
+
+/* 闪亮动画效果 */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
