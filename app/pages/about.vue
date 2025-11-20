@@ -120,7 +120,7 @@
             class="flex flex-col items-center gap-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50"
           >
             <UIcon
-              name="i-simple-icons-vue-dot-js"
+              name="i-simple-icons-vuedotjs"
               class="w-8 h-8 text-green-500"
             />
             <span class="text-sm font-medium text-gray-900 dark:text-white"
