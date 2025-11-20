@@ -126,7 +126,7 @@
     </UCard>
 
     <!-- 最近活动 -->
-    <RecentActivity :limit="10" />
+    <RecentActivity :limit="20" />
   </div>
 </template>
 

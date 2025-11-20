@@ -23,7 +23,7 @@
 
     <!-- 排行榜卡片 -->
     <LeaderboardList
-      :items="leaderboard?.data as AnalyticsLeaderboardSiteItem[] | undefined"
+      :items="leaderboardWithMergedData?.data"
       :pending="pending"
       title="站点使用排名"
       unit="个站点"
@@ -31,9 +31,7 @@
       :loading-more="loadingMore"
       @load-more="loadMore"
     >
-      <template
-        #item-content="{ item }: { item: AnalyticsLeaderboardSiteItem }"
-      >
+      <template #item-content="{ item }">
         <NuxtLink
           :to="`/site/${item.siteId}`"
           class="group flex items-center gap-2"
@@ -119,6 +117,7 @@ const endTimestamp = Math.floor(endTime / 1000)
 const limit = ref(50)
 const offset = ref(0)
 const loadingMore = ref(false)
+const allItems = ref<AnalyticsLeaderboardSiteItem[]>([])
 
 const {
   data: leaderboard,
@@ -127,14 +126,39 @@ const {
 } = await useFetch<AnalyticsLeaderboardSiteResponse>(
   '/api/v6/leaderboard/site',
   {
-    query: {
+    query: computed(() => ({
       start: startTimestamp,
       end: endTimestamp,
       limit: limit.value,
       offset: offset.value,
-    },
+    })),
   }
 )
+
+// 监听数据变化，合并数据
+watch(
+  () => leaderboard.value?.data,
+  (newData) => {
+    if (!newData) return
+    if (offset.value === 0) {
+      // 首次加载或重置时，替换数据
+      allItems.value = newData
+    } else {
+      // 加载更多时，追加数据
+      allItems.value = [...allItems.value, ...newData]
+    }
+  },
+  { immediate: true }
+)
+
+// 使用合并后的数据
+const leaderboardWithMergedData = computed(() => {
+  if (!leaderboard.value) return null
+  return {
+    ...leaderboard.value,
+    data: allItems.value,
+  }
+})
 
 // 格式化数字
 const formatNumber = (num: number) => {
@@ -152,7 +176,7 @@ const formatDate = (timestamp: number) => {
 
 // 加载更多
 const loadMore = async () => {
-  if (loadingMore.value) return
+  if (loadingMore.value || !leaderboard.value?.pager?.hasMore) return
   loadingMore.value = true
   offset.value += limit.value
   await refresh()

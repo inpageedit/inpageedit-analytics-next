@@ -23,7 +23,7 @@
 
     <!-- 排行榜卡片 -->
     <LeaderboardList
-      :items="leaderboard?.data as AnalyticsLeaderboardUserItem[] | undefined"
+      :items="leaderboardWithMergedData?.data"
       :pending="pending"
       title="用户活跃排名"
       unit="位用户"
@@ -31,9 +31,7 @@
       :loading-more="loadingMore"
       @load-more="loadMore"
     >
-      <template
-        #item-content="{ item }: { item: AnalyticsLeaderboardUserItem }"
-      >
+      <template #item-content="{ item }">
         <NuxtLink
           :to="`/user/${item.userId}`"
           class="group flex items-center gap-2"
@@ -77,15 +75,16 @@
           </span>
         </div>
       </template>
-      <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-        <p>
-          • 统计时间范围为最近 30 天（{{ formatDate(startTime) }} 至
+      <ul
+        class="list-disc list-inside space-y-2 text-sm text-gray-600 dark:text-gray-400"
+      >
+        <li>
+          统计时间范围为最近 30 天（{{ formatDate(startTime) }} 至
           {{ formatDate(endTime) }}）
-        </p>
-        <p>• 按用户使用 InPageEdit 的总次数排序</p>
-        <p>• 点击用户名称可查看该用户的详细统计信息</p>
-        <p>
-          •
+        </li>
+        <li>按用户使用 InPageEdit 的总次数排序</li>
+        <li>点击用户名称可查看该用户的详细统计信息</li>
+        <li>
           <UIcon
             name="i-heroicons-trophy"
             class="w-4 h-4 inline text-amber-500"
@@ -99,8 +98,8 @@
             class="w-4 h-4 inline text-orange-500"
           />
           铜牌分别授予前三名
-        </p>
-      </div>
+        </li>
+      </ul>
     </UCard>
   </div>
 </template>
@@ -126,6 +125,7 @@ const endTimestamp = Math.floor(endTime / 1000)
 const limit = ref(50)
 const offset = ref(0)
 const loadingMore = ref(false)
+const allItems = ref<AnalyticsLeaderboardUserItem[]>([])
 
 const {
   data: leaderboard,
@@ -134,14 +134,39 @@ const {
 } = await useFetch<AnalyticsLeaderboardUserResponse>(
   '/api/v6/leaderboard/user',
   {
-    query: {
+    query: computed(() => ({
       start: startTimestamp,
       end: endTimestamp,
       limit: limit.value,
       offset: offset.value,
-    },
+    })),
   }
 )
+
+// 监听数据变化，合并数据
+watch(
+  () => leaderboard.value?.data,
+  (newData) => {
+    if (!newData) return
+    if (offset.value === 0) {
+      // 首次加载或重置时，替换数据
+      allItems.value = newData
+    } else {
+      // 加载更多时，追加数据
+      allItems.value = [...allItems.value, ...newData]
+    }
+  },
+  { immediate: true }
+)
+
+// 使用合并后的数据
+const leaderboardWithMergedData = computed(() => {
+  if (!leaderboard.value) return null
+  return {
+    ...leaderboard.value,
+    data: allItems.value,
+  }
+})
 
 // 格式化数字
 const formatNumber = (num: number) => {
@@ -159,7 +184,7 @@ const formatDate = (timestamp: number) => {
 
 // 加载更多
 const loadMore = async () => {
-  if (loadingMore.value) return
+  if (loadingMore.value || !leaderboard.value?.pager?.hasMore) return
   loadingMore.value = true
   offset.value += limit.value
   await refresh()
