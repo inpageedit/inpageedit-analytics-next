@@ -32,26 +32,26 @@
       @load-more="loadMore"
     >
       <template #item-content="{ item }">
-        <NuxtLink
-          :to="`/site/${item.siteId}`"
-          class="group flex items-center gap-2"
-        >
+        <NuxtLink :to="`/site/${item.siteId}`" class="group">
           <h3
             class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary transition-colors truncate"
           >
             {{ item.site?.name || `站点 #${item.siteId}` }}
           </h3>
-          <UIcon
-            name="i-heroicons-arrow-top-right-on-square"
-            class="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-          />
         </NuxtLink>
-        <p
-          v-if="item.site?.apiUrl"
-          class="text-sm text-gray-500 dark:text-gray-400 truncate"
+        <a
+          v-if="item.site?.apiUrl && item.site?.articlePath"
+          :href="getWikiUrl(item.site.apiUrl, item.site.articlePath, '')?.href"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-sm text-gray-500 dark:text-gray-400 hover:text-primary transition-colors truncate inline-flex items-center gap-1 group"
         >
           {{ item.site.apiUrl }}
-        </p>
+          <UIcon
+            name="i-heroicons-arrow-top-right-on-square"
+            class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+          />
+        </a>
       </template>
     </LeaderboardList>
 
@@ -101,6 +101,7 @@ import type {
   AnalyticsLeaderboardSiteResponse,
   AnalyticsLeaderboardSiteItem,
 } from '#shared/types/AnalyticsResponse'
+import { getWikiUrl } from '#shared/utils/getWikiUrl'
 
 useHead({
   title: '站点排行榜',

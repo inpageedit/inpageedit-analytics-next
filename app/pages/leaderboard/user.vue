@@ -41,10 +41,6 @@
           >
             {{ item.user?.name || `用户 #${item.userId}` }}
           </h3>
-          <UIcon
-            name="i-heroicons-arrow-top-right-on-square"
-            class="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-          />
         </NuxtLink>
         <div class="flex items-center gap-2 mt-1">
           <p class="text-sm text-gray-500 dark:text-gray-400 truncate">

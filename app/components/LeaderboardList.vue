@@ -174,6 +174,6 @@ const getItemClasses = (index: number) => {
   if (index === 2) {
     return 'bg-gradient-to-r from-orange-100 via-amber-100 to-orange-100 dark:from-orange-900/40 dark:via-amber-900/30 dark:to-orange-900/40 border-2 border-orange-400 dark:border-orange-500 shadow-lg shadow-orange-200/50 dark:shadow-orange-900/30 hover:shadow-xl hover:shadow-orange-300/50 dark:hover:shadow-orange-800/40'
   }
-  return 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+  return 'border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50'
 }
 </script>

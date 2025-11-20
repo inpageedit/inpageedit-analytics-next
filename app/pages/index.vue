@@ -42,38 +42,6 @@
       <UCard>
         <template #header>
           <NuxtLink
-            to="/leaderboard/user"
-            class="flex items-center justify-between group hover:opacity-80 transition-opacity"
-          >
-            <div class="flex items-center gap-2">
-              <UIcon
-                name="i-heroicons-user-group"
-                class="w-5 h-5 text-green-500"
-              />
-              <span class="font-semibold text-gray-700 dark:text-gray-300"
-                >总用户量</span
-              >
-            </div>
-            <UIcon
-              name="i-heroicons-arrow-right"
-              class="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors"
-            />
-          </NuxtLink>
-        </template>
-        <div v-if="loadingUsage" class="h-20">
-          <USkeleton class="h-full" />
-        </div>
-        <div v-else class="space-y-2">
-          <div class="text-4xl font-bold text-gray-900 dark:text-white">
-            {{ formatNumber(totalUsage?.data?.users ?? 0) }}
-          </div>
-          <p class="text-sm text-gray-500 dark:text-gray-400">活跃编辑者</p>
-        </div>
-      </UCard>
-
-      <UCard>
-        <template #header>
-          <NuxtLink
             to="/leaderboard/site"
             class="flex items-center justify-between group hover:opacity-80 transition-opacity"
           >
@@ -102,6 +70,38 @@
           <p class="text-sm text-gray-500 dark:text-gray-400">
             接入的 Wiki 站点
           </p>
+        </div>
+      </UCard>
+
+      <UCard>
+        <template #header>
+          <NuxtLink
+            to="/leaderboard/user"
+            class="flex items-center justify-between group hover:opacity-80 transition-opacity"
+          >
+            <div class="flex items-center gap-2">
+              <UIcon
+                name="i-heroicons-user-group"
+                class="w-5 h-5 text-green-500"
+              />
+              <span class="font-semibold text-gray-700 dark:text-gray-300"
+                >总用户量</span
+              >
+            </div>
+            <UIcon
+              name="i-heroicons-arrow-right"
+              class="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors"
+            />
+          </NuxtLink>
+        </template>
+        <div v-if="loadingUsage" class="h-20">
+          <USkeleton class="h-full" />
+        </div>
+        <div v-else class="space-y-2">
+          <div class="text-4xl font-bold text-gray-900 dark:text-white">
+            {{ formatNumber(totalUsage?.data?.users ?? 0) }}
+          </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400">活跃编辑者</p>
         </div>
       </UCard>
     </div>
