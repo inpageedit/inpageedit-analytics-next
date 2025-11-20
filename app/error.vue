@@ -1,26 +1,41 @@
 <template>
   <UApp>
-    <NuxtLayout>
-      <article>
-        <ErrorPage404 v-if="statusCode === 404" />
-        <ErrorPage400 v-else-if="statusCode === 400" />
-        <ErrorPage401 v-else-if="statusCode === 401" />
-        <ErrorPage403 v-else-if="statusCode === 403" />
-        <ErrorPage500 v-else-if="statusCode === 500" />
-        <ErrorPage502 v-else-if="statusCode === 502" />
-        <ErrorPage503 v-else-if="statusCode === 503" />
-        <div v-else>
-          <h1>{{ statusCode }}</h1>
-          <NuxtLink to="/">Go back home</NuxtLink>
-        </div>
-        <UCard class="mt-8 max-w-2xl mx-auto">
-          <details>
-            <summary>反正你应该不感兴趣</summary>
-            <pre>{{ error }}</pre>
-          </details>
-        </UCard>
-      </article>
-    </NuxtLayout>
+    <NuxtLoadingIndicator />
+    <div class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+      <AppHeader />
+
+      <main class="flex-1 pt-16 pb-8">
+        <UContainer class="py-8">
+          <article>
+            <ErrorPage404 v-if="statusCode === 404" />
+            <ErrorPage400 v-else-if="statusCode === 400" />
+            <ErrorPage401 v-else-if="statusCode === 401" />
+            <ErrorPage403 v-else-if="statusCode === 403" />
+            <ErrorPage500 v-else-if="statusCode === 500" />
+            <ErrorPage502 v-else-if="statusCode === 502" />
+            <ErrorPage503 v-else-if="statusCode === 503" />
+            <div
+              v-else
+              class="min-h-[60vh] flex flex-col items-center justify-center px-4"
+            >
+              <h1 class="text-6xl font-bold mb-4">{{ statusCode }}</h1>
+              <p class="text-xl mb-8">
+                {{ error.message || '出现了一些问题' }}
+              </p>
+              <UButton to="/" size="lg">返回首页</UButton>
+            </div>
+            <UCard class="mt-8 max-w-2xl mx-auto">
+              <details>
+                <summary>反正你应该不感兴趣</summary>
+                <pre>{{ error }}</pre>
+              </details>
+            </UCard>
+          </article>
+        </UContainer>
+      </main>
+
+      <AppFooter />
+    </div>
   </UApp>
 </template>
 
@@ -31,9 +46,8 @@ const props = defineProps<{
   error: NuxtError
 }>()
 
-const route = useRoute()
 const statusCode = computed(() => {
-  return Number(route.query._status) || props.error.statusCode || 500
+  return props.error.statusCode || 500
 })
 </script>
 
