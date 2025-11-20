@@ -1,5 +1,3 @@
-import process from 'node:process'
-
 export default eventHandler((event) => {
   const path = event.path
   if (path.includes('/_dev/') && IS_PROD) {
