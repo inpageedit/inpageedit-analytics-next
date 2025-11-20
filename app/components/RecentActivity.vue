@@ -8,16 +8,42 @@
             最近活动
           </span>
         </div>
-        <UBadge color="neutral" variant="subtle" size="sm"> 实时更新 </UBadge>
+        <UButton
+          color="primary"
+          variant="soft"
+          size="sm"
+          :disabled="isCooldown"
+          :loading="isRefreshing"
+          @click="handleRefresh"
+        >
+          <UIcon name="i-heroicons-arrow-path" class="w-4 h-4" />
+          <span v-if="!isCooldown">刷新</span>
+          <span v-else>({{ cooldownSeconds }}s)</span>
+        </UButton>
       </div>
     </template>
 
-    <div v-if="pending" class="p-6">
+    <!-- 初始加载状态 -->
+    <div v-if="pending && !data?.data?.length" class="p-6">
       <USkeleton class="h-64" />
     </div>
+    <!-- 数据内容（带刷新覆盖层） -->
     <template v-else>
-      <div v-if="data?.data?.length" class="overflow-hidden">
+      <div v-if="data?.data?.length" class="overflow-hidden relative">
         <UTable :data="data.data" :columns="columns" />
+        <!-- 刷新覆盖层 -->
+        <div
+          v-if="isRefreshing"
+          class="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm flex items-center justify-center z-10"
+        >
+          <div class="flex flex-col items-center gap-2">
+            <UIcon
+              name="i-heroicons-arrow-path"
+              class="w-6 h-6 text-primary animate-spin"
+            />
+            <span class="text-sm text-gray-600 dark:text-gray-400">刷新中...</span>
+          </div>
+        </div>
       </div>
       <div v-else class="p-12 text-center">
         <UIcon
@@ -69,12 +95,64 @@ const queryParams = computed(() => {
 })
 
 // 获取数据
-const { data, pending } = useFetch<AnalyticsRecentActivityResponse>(
+const { data, pending, refresh } = useFetch<AnalyticsRecentActivityResponse>(
   '/api/v6/usage/recent',
   {
     query: queryParams,
   }
 )
+
+// 冷却时间状态
+const isCooldown = ref(false)
+const cooldownSeconds = ref(0)
+let cooldownTimer: ReturnType<typeof setInterval> | null = null
+
+// 刷新状态（用于覆盖层）
+const isRefreshing = ref(false)
+
+// 处理刷新
+const handleRefresh = async () => {
+  if (isCooldown.value || isRefreshing.value) return
+
+  // 开始刷新
+  isRefreshing.value = true
+
+  try {
+    // 执行刷新
+    await refresh()
+  } finally {
+    // 刷新完成
+    isRefreshing.value = false
+
+    // 开始冷却
+    isCooldown.value = true
+    cooldownSeconds.value = 3
+
+    // 清理之前的定时器
+    if (cooldownTimer) {
+      clearInterval(cooldownTimer)
+    }
+
+    // 倒计时
+    cooldownTimer = setInterval(() => {
+      cooldownSeconds.value--
+      if (cooldownSeconds.value <= 0) {
+        isCooldown.value = false
+        if (cooldownTimer) {
+          clearInterval(cooldownTimer)
+          cooldownTimer = null
+        }
+      }
+    }, 1000)
+  }
+}
+
+// 清理定时器
+onUnmounted(() => {
+  if (cooldownTimer) {
+    clearInterval(cooldownTimer)
+  }
+})
 
 // 格式化时间
 const formatDate = new Intl.DateTimeFormat(/** auto */ undefined, {
