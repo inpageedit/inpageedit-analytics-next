@@ -126,14 +126,7 @@ export default eventHandler(async (event) => {
       usage.page = normalizeWikiTitle(usage.page)
     }
     if (usage.page && !checkWikiTitle(usage.page)) {
-      return Response.json(
-        {
-          error: true,
-          code: 'InvalidPayload',
-          statusMessage: 'Invalid page title',
-        },
-        { status: 400 }
-      )
+      usage.page = undefined
     }
   }
 
