@@ -39,7 +39,8 @@ export const ensureWikiSiteByPayload = async (
     // API 查询失败，但传入了 siteName，使用 fallback 逻辑
     finalSiteName = siteName
     // 将 api.php 替换为 index.php，并加上 ?title=$1
-    finalArticlePath = apiUrl.replace(/api\.php$/, 'index.php') + '?title=$1'
+    const path = new URL(apiUrl.replace('api.php', 'index.php')).pathname
+    finalArticlePath = `${path}?title=$1`
   } else {
     // API 查询失败，且没有传入 siteName
     throw new Error('Failed to fetch siteinfo from API')
