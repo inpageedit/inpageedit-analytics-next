@@ -22,6 +22,6 @@
     "directory": ".output/public"
   },
   "triggers": {
-    "crons": ["*/5 * * * *"]
+    "crons": ["*/30 * * * *"]
   }
 }
