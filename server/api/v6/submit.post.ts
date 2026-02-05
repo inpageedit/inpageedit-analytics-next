@@ -4,6 +4,7 @@ import {
   checkUserName,
   normalizeWikiTitle,
 } from '~~/shared/utils/wikiTitle'
+import { invalidateCache } from '~~/server/utils/cache.js'
 
 const WIKI_API_REGEXP = /^https?:\/\/[^\/]+\/.*api\.php$/
 
@@ -144,6 +145,10 @@ export default eventHandler(async (event) => {
     coreVersion,
     usages,
   })
+
+  // Invalidate cache after successful write
+  await invalidateCache(event, wikiSite.id, wikiUser.id)
+
   return Response.json({
     data: {
       changes: result.length,

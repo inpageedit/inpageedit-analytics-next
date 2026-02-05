@@ -20,5 +20,8 @@
   "assets": {
     "binding": "ASSETS",
     "directory": ".output/public"
+  },
+  "triggers": {
+    "crons": ["*/5 * * * *"]
   }
 }

@@ -1,9 +1,35 @@
 import { and, count, eq, gte, lte, sql } from 'drizzle-orm'
 import { eventLogTable } from '~~/db/schema.js'
+import {
+  buildCacheKey,
+  getOrSetJson,
+  getWindowType,
+  getTTLForWindow,
+  getVersionsForContext,
+  buildVersionString,
+  normalizeToDayStart,
+  normalizeToDayEnd,
+} from '~~/server/utils/cache.js'
 
 const MAX_DAYS = 180
 const DEFAULT_DAYS = 30
 const SECONDS_PER_DAY = 86400
+
+interface DailyStat {
+  date: string
+  count: number
+}
+
+interface DailyResponse {
+  data: DailyStat[]
+  filters: {
+    siteId?: number
+    userId?: number
+    start: number
+    end: number
+  }
+  cached?: boolean
+}
 
 export default eventHandler(async (event) => {
   const query = getQuery(event)
@@ -44,38 +70,83 @@ export default eventHandler(async (event) => {
     })
   }
 
-  const drizzle = useDrizzle(event)
+  // Normalize to day boundaries for cache key
+  const normalizedStart = normalizeToDayStart(start)
+  const normalizedEnd = normalizeToDayEnd(end)
 
-  const whereClause = and(
-    Number.isFinite(siteId) && siteId
-      ? eq(eventLogTable.siteId, siteId)
-      : undefined,
-    Number.isFinite(userId) && userId
-      ? eq(eventLogTable.userId, userId)
-      : undefined,
-    start ? gte(eventLogTable.createdAt, start) : undefined,
-    end ? lte(eventLogTable.createdAt, end) : undefined
+  // Determine window type and TTL
+  const windowType = getWindowType(start, end)
+  const ttl = getTTLForWindow(windowType)
+
+  // Get version numbers for cache key (only for non-frozen windows)
+  let versionStr = ''
+  if (windowType !== 'frozen') {
+    const versions = await getVersionsForContext(
+      event,
+      Number.isFinite(siteId) && siteId ? siteId : undefined,
+      Number.isFinite(userId) && userId ? userId : undefined
+    )
+    versionStr = buildVersionString(versions)
+  }
+
+  // Build cache key
+  const cacheKey = buildCacheKey(
+    'usage',
+    'daily',
+    {
+      site: Number.isFinite(siteId) && siteId ? siteId : 0,
+      user: Number.isFinite(userId) && userId ? userId : 0,
+      start: normalizedStart,
+      end: normalizedEnd,
+    },
+    versionStr || undefined
   )
 
-  // 按天分组统计
-  const dailyStats = await drizzle
-    .select({
-      date: sql<string>`strftime('%Y-%m-%d', ${eventLogTable.createdAt}, 'unixepoch')`,
-      count: count(),
-    })
-    .from(eventLogTable)
-    .where(whereClause)
-    .groupBy(sql`strftime('%Y-%m-%d', ${eventLogTable.createdAt}, 'unixepoch')`)
-    .orderBy(sql`strftime('%Y-%m-%d', ${eventLogTable.createdAt}, 'unixepoch')`)
-    .all()
+  // Try to get from cache or execute query
+  const result = await getOrSetJson<DailyResponse>(
+    event,
+    cacheKey,
+    ttl,
+    async () => {
+      const drizzle = useDrizzle(event)
+
+      const whereClause = and(
+        Number.isFinite(siteId) && siteId
+          ? eq(eventLogTable.siteId, siteId)
+          : undefined,
+        Number.isFinite(userId) && userId
+          ? eq(eventLogTable.userId, userId)
+          : undefined,
+        gte(eventLogTable.createdAt, start!),
+        lte(eventLogTable.createdAt, end!)
+      )
+
+      // 按天分组统计
+      const dailyStats = await drizzle
+        .select({
+          date: sql<string>`strftime('%Y-%m-%d', ${eventLogTable.createdAt}, 'unixepoch')`,
+          count: count(),
+        })
+        .from(eventLogTable)
+        .where(whereClause)
+        .groupBy(sql`strftime('%Y-%m-%d', ${eventLogTable.createdAt}, 'unixepoch')`)
+        .orderBy(sql`strftime('%Y-%m-%d', ${eventLogTable.createdAt}, 'unixepoch')`)
+        .all()
+
+      return {
+        data: dailyStats,
+        filters: {
+          siteId: Number.isFinite(siteId) && siteId ? siteId : undefined,
+          userId: Number.isFinite(userId) && userId ? userId : undefined,
+          start,
+          end,
+        },
+      }
+    }
+  )
 
   return Response.json({
-    data: dailyStats,
-    filters: {
-      siteId: Number.isFinite(siteId) && siteId ? siteId : undefined,
-      userId: Number.isFinite(userId) && userId ? userId : undefined,
-      start,
-      end,
-    },
+    ...result.data,
+    cached: result.cached,
   })
 })

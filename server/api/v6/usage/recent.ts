@@ -1,14 +1,86 @@
 import { and, desc, eq } from 'drizzle-orm'
 import { eventLogTable, wikiSiteTable, wikiUserTable } from '~~/db/schema.js'
+import {
+  buildCacheKey,
+  getOrSetJson,
+  getVersionsForContext,
+  buildVersionString,
+  TTL_SHORT,
+} from '~~/server/utils/cache.js'
+
+interface RecentUsageResponse {
+  data: any[]
+  filters: {
+    siteId: number | null
+    userId: number | null
+  }
+  pager: {
+    limit: number
+    offset: number
+    hasMore: boolean
+  }
+  cached?: boolean
+}
+
+// Only cache first few pages with short TTL
+const MAX_CACHED_OFFSET = 100
 
 export default eventHandler(async (event) => {
-  const drizzle = useDrizzle(event)
   const query = getQuery(event)
   const { limit, offset } = getPagerParams(event)
 
   // 获取可选的过滤参数
   const siteId = query.siteId ? parseInt(String(query.siteId)) : undefined
   const userId = query.userId ? parseInt(String(query.userId)) : undefined
+
+  // Only cache first few pages
+  const shouldCache = offset <= MAX_CACHED_OFFSET
+
+  if (shouldCache) {
+    // Get version numbers for cache key
+    const versions = await getVersionsForContext(event, siteId, userId)
+    const versionStr = buildVersionString(versions)
+
+    // Build cache key
+    const cacheKey = buildCacheKey(
+      'usage',
+      'recent',
+      {
+        site: siteId ?? 0,
+        user: userId ?? 0,
+        limit,
+        offset,
+      },
+      versionStr
+    )
+
+    // Try to get from cache or execute query
+    const result = await getOrSetJson<RecentUsageResponse>(
+      event,
+      cacheKey,
+      TTL_SHORT,
+      async () => fetchRecentUsage(event, siteId, userId, limit, offset)
+    )
+
+    return Response.json({
+      ...result.data,
+      cached: result.cached,
+    })
+  }
+
+  // For deeper pages, skip caching
+  const data = await fetchRecentUsage(event, siteId, userId, limit, offset)
+  return Response.json(data)
+})
+
+async function fetchRecentUsage(
+  event: any,
+  siteId: number | undefined,
+  userId: number | undefined,
+  limit: number,
+  offset: number
+): Promise<RecentUsageResponse> {
+  const drizzle = useDrizzle(event)
 
   // 构建过滤条件
   const conditions = []
@@ -43,7 +115,7 @@ export default eventHandler(async (event) => {
     .offset(offset)
     .all()
 
-  return Response.json({
+  return {
     data: rows
       .map((r) => ({
         ...r.event,
@@ -60,5 +132,5 @@ export default eventHandler(async (event) => {
       offset,
       hasMore: rows.length > limit,
     },
-  })
-})
+  }
+}
