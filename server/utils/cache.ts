@@ -227,7 +227,10 @@ export const invalidateCache = async (
   siteId?: number,
   userId?: number
 ): Promise<void> => {
-  await bumpVersion(event, 'global')
+  // NOTE:
+  // We intentionally DO NOT bump the global version on every write.
+  // Global caches (e.g. leaderboards without site/user filters) are allowed to be stale
+  // within their TTL window to avoid invalidating all hot caches on each submission.
   if (siteId) {
     await bumpVersion(event, 'site', siteId)
   }
