@@ -59,5 +59,13 @@ export const eventLogTable = table(
     coreVersion: text(),
     ...useTimestampColumns(),
   },
-  (e) => [index('ix_event_time').on(e.createdAt)]
+  (e) => [
+    // 1) Fast scan for time-window analytics queries (leaderboards, daily stats, totals).
+    //    Includes siteId/userId to make it a covering index for common aggregations.
+    index('ix_event_time_site_user').on(e.createdAt, e.siteId, e.userId),
+
+    // 2) Fast lookups when filtering by site/user (usage pages, recent list with filters).
+    index('ix_event_site_time').on(e.siteId, e.createdAt),
+    index('ix_event_user_time').on(e.userId, e.createdAt),
+  ]
 )

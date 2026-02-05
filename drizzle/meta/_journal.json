@@ -8,6 +8,13 @@
       "when": 1762318239976,
       "tag": "0000_brief_captain_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1770289525013,
+      "tag": "0001_striped_lake",
+      "breakpoints": true
     }
   ]
 }
