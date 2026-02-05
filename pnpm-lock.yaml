@@ -54,6 +54,9 @@ importers:
       '@iconify-json/simple-icons':
         specifier: ^1.2.59
         version: 1.2.59
+      '@iconify-json/tabler':
+        specifier: ^1.2.26
+        version: 1.2.26
       '@types/node':
         specifier: ^24.10.0
         version: 24.10.0
@@ -786,6 +789,9 @@ packages:
 
   '@iconify-json/simple-icons@1.2.59':
     resolution: {integrity: sha512-fYx/InyQsWFW4wVxWka3CGDJ6m/fXoTqWBSl+oA3FBXO5RhPAb6S3Y5bRgCPnrYevErH8VjAL0TZevIqlN2PhQ==}
+
+  '@iconify-json/tabler@1.2.26':
+    resolution: {integrity: sha512-92G+ZD70AZgeJf07JfQzH+isnai6DwPcMBuF/qL1F+xAxdXCJzGd3w2RmsRvOmB+w1ImmWEEDms50QivQIjd6g==}
 
   '@iconify/collections@1.0.613':
     resolution: {integrity: sha512-7jqZqr7oGiDF7pxZgFtQIsyLTNNrO85zinaj8oDG7Cejp2SgmjAd5x50b8fvaMkPUzr6LDRbcn+U2odNqmdc4A==}
@@ -5922,6 +5928,10 @@ snapshots:
       - vue
 
   '@iconify-json/simple-icons@1.2.59':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/tabler@1.2.26':
     dependencies:
       '@iconify/types': 2.0.0
 

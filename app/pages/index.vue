@@ -6,7 +6,10 @@
         <UIcon name="i-heroicons-chart-bar-square" class="w-8 h-8 text-primary" />
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">仪表盘</h1>
       </div>
-      <p class="text-gray-600 dark:text-gray-400">InPageEdit NEXT 全球使用统计数据</p>
+      <div class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+        <p>InPageEdit NEXT 全球使用统计数据</p>
+        <CacheDelayHint :max-delay-seconds="5 * 60" />
+      </div>
     </div>
 
     <!-- 统计卡片 -->

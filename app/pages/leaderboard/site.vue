@@ -17,6 +17,10 @@
           <span class="text-sm text-gray-500 dark:text-gray-500"
             >（最近 30 天）</span
           >
+          <CacheDelayHint
+            :max-delay-seconds="30 * 60"
+            reason="榜单数据使用缓存与定时预计算（每 30 分钟更新）"
+          />
         </p>
       </div>
     </div>
