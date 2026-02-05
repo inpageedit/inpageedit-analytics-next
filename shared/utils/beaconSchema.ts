@@ -20,9 +20,7 @@ export const beaconSchema: z.ZodType<IPEBeaconPayload> = z.object({
   version: z
     .string()
     .optional()
-    .transform((v) =>
-      v ? (v.match(VERSION_REGEXP) ? v : undefined) : undefined
-    ),
+    .transform((v) => (v ? (v.match(VERSION_REGEXP) ? v : undefined) : undefined)),
   usages: z.array(
     z.object({
       ts: z.number(),

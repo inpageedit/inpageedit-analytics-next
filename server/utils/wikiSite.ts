@@ -46,12 +46,7 @@ export const ensureWikiSiteByPayload = async (
     throw new Error('Failed to fetch siteinfo from API')
   }
 
-  const inserted = await createWikiSiteToDB(
-    event,
-    finalSiteName,
-    apiUrl,
-    finalArticlePath
-  )
+  const inserted = await createWikiSiteToDB(event, finalSiteName, apiUrl, finalArticlePath)
   return inserted
 }
 

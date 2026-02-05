@@ -1,8 +1,4 @@
-export const getWikiUrl = (
-  baseUrl: string,
-  articlePath: string,
-  title: string = ''
-) => {
+export const getWikiUrl = (baseUrl: string, articlePath: string, title: string = '') => {
   if (!baseUrl || !articlePath) {
     return undefined
   }

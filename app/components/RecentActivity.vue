@@ -4,9 +4,7 @@
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
           <UIcon name="i-heroicons-clock" class="w-5 h-5 text-gray-500" />
-          <span class="font-semibold text-gray-900 dark:text-white">
-            最近活动
-          </span>
+          <span class="font-semibold text-gray-900 dark:text-white"> 最近活动 </span>
         </div>
         <UButton
           color="primary"
@@ -37,19 +35,13 @@
           class="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm flex items-center justify-center z-10"
         >
           <div class="flex flex-col items-center gap-2">
-            <UIcon
-              name="i-heroicons-arrow-path"
-              class="w-6 h-6 text-primary animate-spin"
-            />
+            <UIcon name="i-heroicons-arrow-path" class="w-6 h-6 text-primary animate-spin" />
             <span class="text-sm text-gray-600 dark:text-gray-400">刷新中...</span>
           </div>
         </div>
       </div>
       <div v-else class="p-12 text-center">
-        <UIcon
-          name="i-heroicons-inbox"
-          class="w-16 h-16 mx-auto text-gray-400 mb-3"
-        />
+        <UIcon name="i-heroicons-inbox" class="w-16 h-16 mx-auto text-gray-400 mb-3" />
         <p class="text-gray-500 dark:text-gray-400">暂无活动数据</p>
       </div>
     </template>
@@ -187,10 +179,7 @@ const columns = computed<TableColumn<AnalyticsRecentActivityItem>[]>(() => {
         return h(
           RouterLink,
           { to: `/site/${row.original.site.id}` },
-          () =>
-            `${row.original.site.name} (${
-              new URL(row.original.site.apiUrl).host
-            })`
+          () => `${row.original.site.name} (${new URL(row.original.site.apiUrl).host})`
         )
       },
     })
@@ -200,9 +189,7 @@ const columns = computed<TableColumn<AnalyticsRecentActivityItem>[]>(() => {
   cols.push({
     header: '功能',
     cell({ row }) {
-      return `${row.original.feature}${
-        row.original.subtype ? `/${row.original.subtype}` : ''
-      }`
+      return `${row.original.feature}${row.original.subtype ? `/${row.original.subtype}` : ''}`
     },
   })
 

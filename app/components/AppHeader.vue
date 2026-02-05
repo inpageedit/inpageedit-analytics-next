@@ -7,10 +7,7 @@
         <nav class="flex items-center justify-between w-full min-w-max">
           <div class="flex items-center gap-3 flex-shrink-0">
             <div class="flex items-center gap-2">
-              <UIcon
-                name="i-heroicons-chart-bar-20-solid"
-                class="w-7 h-7 text-primary"
-              />
+              <UIcon name="i-heroicons-chart-bar-20-solid" class="w-7 h-7 text-primary" />
               <NuxtLink
                 to="/"
                 class="text-xl font-bold text-gray-900 dark:text-white hover:text-primary transition-colors whitespace-nowrap"
@@ -21,20 +18,8 @@
             <UBadge color="primary" variant="subtle" size="xs">NEXT</UBadge>
           </div>
           <div class="flex items-center gap-1 flex-shrink-0">
-            <UButton
-              to="/"
-              color="neutral"
-              variant="ghost"
-              icon="i-heroicons-home"
-            >
-              首页
-            </UButton>
-            <UButton
-              to="/leaderboard"
-              color="neutral"
-              variant="ghost"
-              icon="i-heroicons-trophy"
-            >
+            <UButton to="/" color="neutral" variant="ghost" icon="i-heroicons-home"> 首页 </UButton>
+            <UButton to="/leaderboard" color="neutral" variant="ghost" icon="i-heroicons-trophy">
               排行榜
             </UButton>
             <UButton

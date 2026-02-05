@@ -3,15 +3,10 @@
     <!-- 页面标题 -->
     <div class="space-y-2">
       <div class="flex items-center gap-3">
-        <UIcon
-          name="i-heroicons-chart-bar-square"
-          class="w-8 h-8 text-primary"
-        />
+        <UIcon name="i-heroicons-chart-bar-square" class="w-8 h-8 text-primary" />
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">仪表盘</h1>
       </div>
-      <p class="text-gray-600 dark:text-gray-400">
-        InPageEdit NEXT 全球使用统计数据
-      </p>
+      <p class="text-gray-600 dark:text-gray-400">InPageEdit NEXT 全球使用统计数据</p>
     </div>
 
     <!-- 统计卡片 -->
@@ -19,13 +14,8 @@
       <UCard>
         <template #header>
           <div class="flex items-center gap-2">
-            <UIcon
-              name="i-heroicons-cursor-arrow-ripple"
-              class="w-5 h-5 text-blue-500"
-            />
-            <span class="font-semibold text-gray-700 dark:text-gray-300"
-              >总使用量</span
-            >
+            <UIcon name="i-heroicons-cursor-arrow-ripple" class="w-5 h-5 text-blue-500" />
+            <span class="font-semibold text-gray-700 dark:text-gray-300">总使用量</span>
           </div>
         </template>
         <div v-if="loadingUsage" class="h-20">
@@ -46,13 +36,8 @@
             class="flex items-center justify-between group hover:opacity-80 transition-opacity"
           >
             <div class="flex items-center gap-2">
-              <UIcon
-                name="i-heroicons-globe-alt"
-                class="w-5 h-5 text-purple-500"
-              />
-              <span class="font-semibold text-gray-700 dark:text-gray-300"
-                >总站点数</span
-              >
+              <UIcon name="i-heroicons-globe-alt" class="w-5 h-5 text-purple-500" />
+              <span class="font-semibold text-gray-700 dark:text-gray-300">总站点数</span>
             </div>
             <UIcon
               name="i-heroicons-arrow-right"
@@ -67,9 +52,7 @@
           <div class="text-4xl font-bold text-gray-900 dark:text-white">
             {{ formatNumber(totalUsage?.data?.sites ?? 0) }}
           </div>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            接入的 Wiki 站点
-          </p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">接入的 Wiki 站点</p>
         </div>
       </UCard>
 
@@ -80,13 +63,8 @@
             class="flex items-center justify-between group hover:opacity-80 transition-opacity"
           >
             <div class="flex items-center gap-2">
-              <UIcon
-                name="i-heroicons-user-group"
-                class="w-5 h-5 text-green-500"
-              />
-              <span class="font-semibold text-gray-700 dark:text-gray-300"
-                >总用户量</span
-              >
+              <UIcon name="i-heroicons-user-group" class="w-5 h-5 text-green-500" />
+              <span class="font-semibold text-gray-700 dark:text-gray-300">总用户量</span>
             </div>
             <UIcon
               name="i-heroicons-arrow-right"
@@ -111,9 +89,7 @@
       <template #header>
         <div class="flex items-center gap-2">
           <UIcon name="i-heroicons-presentation-chart-line" class="w-5 h-5 text-gray-500" />
-          <span class="font-semibold text-gray-900 dark:text-white"
-            >使用量趋势</span
-          >
+          <span class="font-semibold text-gray-900 dark:text-white">使用量趋势</span>
         </div>
       </template>
 
@@ -182,9 +158,7 @@ onMounted(() => {
           },
           formatter: (params: any) => {
             const param = params[0]
-            return `${param.axisValue}<br/>使用次数: ${formatNumber(
-              param.value
-            )}`
+            return `${param.axisValue}<br/>使用次数: ${formatNumber(param.value)}`
           },
         },
         grid: {

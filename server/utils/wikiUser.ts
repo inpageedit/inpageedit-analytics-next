@@ -44,12 +44,7 @@ export const findWikiUser = async (
   const [user] = await drizzle
     .select()
     .from(wikiUserTable)
-    .where(
-      and(
-        eq(wikiUserTable.mwUserId, mwUserId),
-        inArray(wikiUserTable.siteId, siteIdArray)
-      )
-    )
+    .where(and(eq(wikiUserTable.mwUserId, mwUserId), inArray(wikiUserTable.siteId, siteIdArray)))
     .limit(1)
 
   return user ?? null

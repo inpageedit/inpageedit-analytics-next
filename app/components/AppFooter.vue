@@ -4,9 +4,7 @@
   >
     <UContainer class="py-8">
       <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-        <div
-          class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
-        >
+        <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
           <UIcon name="i-heroicons-chart-bar-20-solid" class="w-5 h-5" />
           <span>© {{ new Date().getFullYear() }} InPageEdit Analytics</span>
         </div>

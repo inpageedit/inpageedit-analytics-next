@@ -68,9 +68,7 @@ export const getWindowType = (
 /**
  * Get appropriate TTL based on window type
  */
-export const getTTLForWindow = (
-  windowType: 'frozen' | 'mixed' | 'hot'
-): number => {
+export const getTTLForWindow = (windowType: 'frozen' | 'mixed' | 'hot'): number => {
   switch (windowType) {
     case 'frozen':
       return TTL_LONG
@@ -129,10 +127,7 @@ export const buildCacheKey = (
 /**
  * Get version key for global/site/user
  */
-export const getVersionKey = (
-  type: 'global' | 'site' | 'user',
-  id?: number
-): string => {
+export const getVersionKey = (type: 'global' | 'site' | 'user', id?: number): string => {
   if (type === 'global') {
     return `${VERSION_KEY_PREFIX}:global`
   }

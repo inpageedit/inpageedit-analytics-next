@@ -42,9 +42,7 @@
         ></div>
 
         <!-- 排名和图标 -->
-        <div
-          class="flex items-center justify-center w-12 shrink-0 relative z-10"
-        >
+        <div class="flex items-center justify-center w-12 shrink-0 relative z-10">
           <UIcon
             v-if="index === 0"
             name="i-heroicons-trophy"
@@ -63,10 +61,7 @@
             class="w-8 h-8 text-orange-500 dark:text-orange-400 drop-shadow-lg"
             title="铜牌"
           />
-          <span
-            v-else
-            class="text-2xl font-bold text-gray-400 dark:text-gray-600"
-          >
+          <span v-else class="text-2xl font-bold text-gray-400 dark:text-gray-600">
             {{ index + 1 }}
           </span>
         </div>
@@ -103,12 +98,7 @@
     <!-- 分页 -->
     <template v-if="hasMore" #footer>
       <div class="flex justify-center">
-        <UButton
-          color="primary"
-          variant="soft"
-          @click="$emit('load-more')"
-          :loading="loadingMore"
-        >
+        <UButton color="primary" variant="soft" @click="$emit('load-more')" :loading="loadingMore">
           加载更多
         </UButton>
       </div>

@@ -41,9 +41,7 @@ export interface AnalyticsRecentActivityItem {
   site: AnalyticsSite
 }
 
-export type AnalyticsRecentActivityResponse = AnalyticsResponse<
-  AnalyticsRecentActivityItem[]
->
+export type AnalyticsRecentActivityResponse = AnalyticsResponse<AnalyticsRecentActivityItem[]>
 
 export type AnalyticsTotalUsageResponse = AnalyticsResponse<{
   total: number
@@ -68,9 +66,7 @@ export interface AnalyticsDailyUsageItem {
   count: number
 }
 
-export type AnalyticsDailyUsageResponse = AnalyticsResponse<
-  AnalyticsDailyUsageItem[]
->
+export type AnalyticsDailyUsageResponse = AnalyticsResponse<AnalyticsDailyUsageItem[]>
 
 export interface AnalyticsLeaderboardSiteItem {
   siteId: number
@@ -78,9 +74,7 @@ export interface AnalyticsLeaderboardSiteItem {
   site: AnalyticsSite | null
 }
 
-export type AnalyticsLeaderboardSiteResponse = AnalyticsResponse<
-  AnalyticsLeaderboardSiteItem[]
->
+export type AnalyticsLeaderboardSiteResponse = AnalyticsResponse<AnalyticsLeaderboardSiteItem[]>
 
 export interface AnalyticsLeaderboardUserItem {
   userId: number
@@ -89,6 +83,4 @@ export interface AnalyticsLeaderboardUserItem {
   site: AnalyticsSite | null
 }
 
-export type AnalyticsLeaderboardUserResponse = AnalyticsResponse<
-  AnalyticsLeaderboardUserItem[]
->
+export type AnalyticsLeaderboardUserResponse = AnalyticsResponse<AnalyticsLeaderboardUserItem[]>

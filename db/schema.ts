@@ -1,15 +1,8 @@
 import { sql } from 'drizzle-orm'
-import {
-  sqliteTable as table,
-  text,
-  index,
-  uniqueIndex,
-  integer,
-} from 'drizzle-orm/sqlite-core'
+import { sqliteTable as table, text, index, uniqueIndex, integer } from 'drizzle-orm/sqlite-core'
 
 const CURRENT_TIMESTAMP_INTEGER = sql`(STRFTIME('%s', 'now'))`
-const useCurrentTimestamp = () =>
-  integer().notNull().default(CURRENT_TIMESTAMP_INTEGER)
+const useCurrentTimestamp = () => integer().notNull().default(CURRENT_TIMESTAMP_INTEGER)
 const useTimestampColumns = () => ({
   createdAt: useCurrentTimestamp(),
   updatedAt: useCurrentTimestamp(),
