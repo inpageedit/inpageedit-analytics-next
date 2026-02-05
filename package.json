@@ -8,6 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "format": "prettier --write --no-error-on-unmatched-pattern ./{app,db,server,shared,types}/**/*.{ts,js,vue,json,md}",
     "drizzle:generate": "drizzle-kit generate",
     "drizzle:push": "wrangler d1 migrations apply D1 --local",
     "drizzle:push-prod": "wrangler d1 migrations apply D1 --remote",
@@ -36,6 +37,7 @@
     "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "drizzle-kit": "^0.31.6",
+    "prettier": "^3.8.1",
     "sass-embedded": "^1.93.3",
     "tailwindcss": "^4.1.16",
     "wrangler": "^4.45.3"
